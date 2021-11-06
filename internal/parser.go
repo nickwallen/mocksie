@@ -41,47 +41,51 @@ func (p *FileParser) FindInterfaces() ([]*Interface, error) {
 	// Find any interfaces
 	ifaces := make([]*Interface, 0)
 	for _, decl := range f.Decls {
-		if d, ok := decl.(*ast.GenDecl); ok {
-			if d.Tok != token.TYPE {
-				continue
+		if _, ok := decl.(*ast.GenDecl); !ok {
+			continue // Not a declaration
+		}
+		if decl.(*ast.GenDecl).Tok != token.TYPE {
+			continue // Not declaring a type
+		}
+		for _, spec := range decl.(*ast.GenDecl).Specs {
+			if _, ok := spec.(*ast.TypeSpec); !ok {
+				continue // Not a proper type
 			}
-			for _, spec := range d.Specs {
-				if spec, ok := spec.(*ast.TypeSpec); ok {
-					if iface, ok := spec.Type.(*ast.InterfaceType); ok {
-						ifaces = append(ifaces, buildInterface(spec.Name.String(), iface))
-					}
-				}
+			if _, ok := spec.(*ast.TypeSpec).Type.(*ast.InterfaceType); !ok {
+				continue // Not an interface
 			}
+			typ := spec.(*ast.TypeSpec)
+			ifaces = append(ifaces, &Interface{
+				Name:    typ.Name.String(),
+				Methods: buildMethods(typ.Type.(*ast.InterfaceType)),
+			})
 		}
 	}
 	return ifaces, nil
 }
 
-func buildInterface(name string, iface *ast.InterfaceType) *Interface {
+func buildMethods(typ *ast.InterfaceType) []Method {
 	var methods []Method
-	for _, method := range iface.Methods.List {
-		// Expect a func type
-		if _, ok := method.Type.(*ast.FuncType); !ok {
+	for _, field := range typ.Methods.List {
+		// Expect a function type
+		if _, ok := field.Type.(*ast.FuncType); !ok {
 			continue
 		}
 
 		// Expect the method to be named
-		if len(method.Names) == 0 {
+		if len(field.Names) == 0 {
 			continue
 		}
 
 		// Build the method
-		funcType := method.Type.(*ast.FuncType)
+		funcType := field.Type.(*ast.FuncType)
 		methods = append(methods, Method{
-			Name:    method.Names[0].Name,
+			Name:    field.Names[0].Name,
 			Params:  buildParams(funcType),
 			Results: buildResults(funcType),
 		})
 	}
-	return &Interface{
-		Name:    name,
-		Methods: methods,
-	}
+	return methods
 }
 
 func buildResults(funcType *ast.FuncType) []Result {
