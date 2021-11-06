@@ -1,18 +1,11 @@
 package generator
 
 import (
-	"fmt"
+	"html/template"
 	"os"
-	"strings"
 
+	"github.com/Masterminds/sprig"
 	"github.com/nickwallen/mocksie/internal"
-)
-
-const (
-	structTemplate = `
-type mock%s struct {
-}
-`
 )
 
 type writer interface {
@@ -31,7 +24,11 @@ func NewGenerator() *Generator {
 	}
 }
 
+// GenerateMock generates a mock for an Interface.
 func (g *Generator) GenerateMock(iface *parser.Interface) error {
-	_, err := fmt.Fprintf(g.writer, structTemplate, strings.Title(iface.Name))
-	return err
+	t, err := template.New("mock").Funcs(sprig.FuncMap()).ParseGlob("templates/*.template")
+	if err != nil {
+		return err
+	}
+	return t.Execute(g.writer, iface)
 }

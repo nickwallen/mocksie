@@ -1,0 +1,7 @@
+{{ define "methods" }}
+{{- range .Methods }}
+func (m *mock{{ $.Name | title }}) {{ .Name }}({{ template "declare-params" . }}) {{ template "results" . }} {
+    return m.Do{{ .Name }}({{ template "use-params" . }})
+}
+{{- end }}
+{{- end }}

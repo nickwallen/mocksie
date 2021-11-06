@@ -1,0 +1,8 @@
+{{ define "mock" }}
+type mock{{ .Name | title }} struct {
+{{- range  .Methods }}
+    Do{{ .Name }} func ({{ template "declare-params" . }}) {{ template "results" . }}
+{{- end }}
+}
+{{ template "methods" . }}
+{{ end }}

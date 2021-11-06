@@ -24,3 +24,9 @@ type Result struct {
 	Name string
 	Type string
 }
+
+// Mock a concrete implementation of an Interface that is useful for testing.
+type Mock struct {
+	Name string
+	Methods []Method
+}
