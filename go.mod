@@ -1,4 +1,4 @@
-module github.com/nickwallen/farce
+module github.com/nickwallen/mocksie
 
 go 1.16
 
