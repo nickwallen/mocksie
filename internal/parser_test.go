@@ -24,8 +24,29 @@ func Test_FileParser_FindInterfaces_OK(t *testing.T) {
 			`),
 			expected: []*Interface{
 				{
-					Name:    "greeter",
-					Methods: []Method{{Name: "SayHello"}, {Name: "SayGoodbye"}},
+					Name: "greeter",
+					Methods: []Method{
+						{
+							Name: "SayHello",
+							Params: []Param{
+								{Name: "name", Type: "string"},
+							},
+							Results: []Result{
+								{Name: "", Type: "string"},
+								{Name: "", Type: "error"},
+							},
+						},
+						{
+							Name: "SayGoodbye",
+							Params: []Param{
+								{Name: "name", Type: "string"},
+							},
+							Results: []Result{
+								{Name: "", Type: "string"},
+								{Name: "", Type: "error"},
+							},
+						},
+					},
 				},
 			},
 		},
@@ -43,12 +64,30 @@ func Test_FileParser_FindInterfaces_OK(t *testing.T) {
 			`),
 			expected: []*Interface{
 				{
-					Name:    "thisOne",
-					Methods: []Method{{Name: "DoThisThing"}},
+					Name: "thisOne",
+					Methods: []Method{
+						{
+							Name:   "DoThisThing",
+							Params: []Param{},
+							Results: []Result{
+								{Name: "", Type: "string"},
+								{Name: "", Type: "error"},
+							},
+						},
+					},
 				},
 				{
-					Name:    "thatOne",
-					Methods: []Method{{Name: "DoThatThing"}},
+					Name: "thatOne",
+					Methods: []Method{
+						{
+							Name:   "DoThatThing",
+							Params: []Param{},
+							Results: []Result{
+								{Name: "", Type: "string"},
+								{Name: "", Type: "error"},
+							},
+						},
+					},
 				},
 			},
 		},
@@ -56,9 +95,61 @@ func Test_FileParser_FindInterfaces_OK(t *testing.T) {
 			name: "no-interfaces",
 			code: []byte(`
 				package main
-				// No interfaces to be found here
+				// No interfaces defined here
 			`),
 			expected: []*Interface{},
+		},
+		{
+			name: "named-results",
+			code: []byte(`
+				package main
+				type greeter interface {
+					SayHello(name string) (greeting string, err error)
+				}
+			`),
+			expected: []*Interface{
+				{
+					Name: "greeter",
+					Methods: []Method{
+						{
+							Name: "SayHello",
+							Params: []Param{
+								{Name: "name", Type: "string"},
+							},
+							Results: []Result{
+								{Name: "greeting", Type: "string"},
+								{Name: "err", Type: "error"},
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "unnamed-params",
+			code: []byte(`
+				package main
+				type greeter interface {
+					SayHello(string) (string, error)
+				}
+			`),
+			expected: []*Interface{
+				{
+					Name: "greeter",
+					Methods: []Method{
+						{
+							Name: "SayHello",
+							Params: []Param{
+								{Name: "", Type: "string"},
+							},
+							Results: []Result{
+								{Name: "", Type: "string"},
+								{Name: "", Type: "error"},
+							},
+						},
+					},
+				},
+			},
 		},
 	}
 
