@@ -2,50 +2,79 @@ package parser
 
 import (
 	"github.com/stretchr/testify/require"
+	"io/ioutil"
+	"os"
 	"testing"
 )
 
 func Test_FileParser_FindInterfaces_OK(t *testing.T) {
 	tests := []struct {
-		filename string
+		name     string
+		code     []byte
 		expected []*Interface
 	}{
 		{
-			filename: "testdata/greeter.go",
+			name: "multiple-methods",
+			code: []byte(`
+				package main
+				type greeter interface {
+					SayHello(name string) (string, error)
+					SayGoodbye(name string) (string, error)
+				}
+			`),
 			expected: []*Interface{
 				{
 					Name:    "greeter",
-					Methods: []string{"SayHello", "SayGoodbye"},
+					Methods: []Method{{Name: "SayHello"}, {Name: "SayGoodbye"}},
 				},
 			},
 		},
 		{
-			filename: "testdata/multiple.go",
+			name: "multiple-interfaces",
+			code: []byte(`
+				package main
+				type thisOne interface {
+					DoThisThing() (string, error)
+				}
+				
+				type thatOne interface {
+					DoThatThing() (string, error)
+				}
+			`),
 			expected: []*Interface{
 				{
-					Name: "thisOne",
-					Methods: []string{"DoThisThing"},
+					Name:    "thisOne",
+					Methods: []Method{{Name: "DoThisThing"}},
 				},
 				{
-					Name:"thatOne",
-					Methods: []string{"DoThatThing"},
-				},
-				{
-					Name:"anotherOne",
-					Methods: []string{"DoAnotherThing"},
+					Name:    "thatOne",
+					Methods: []Method{{Name: "DoThatThing"}},
 				},
 			},
 		},
 		{
-			filename: "testdata/none.go",
+			name: "no-interfaces",
+			code: []byte(`
+				package main
+				// No interfaces to be found here
+			`),
 			expected: []*Interface{},
 		},
 	}
+
+	// Create a file for the source code
+	file, err := ioutil.TempFile("", "interfaces.go")
+	require.NoError(t, err)
+	defer os.Remove(file.Name())
+
 	for _, test := range tests {
-		t.Run(test.filename, func(t *testing.T) {
+		t.Run(test.name, func(t *testing.T) {
+			// Write the source code to the file
+			err = ioutil.WriteFile(file.Name(), test.code, 0700)
+			require.NoError(t, err)
 
 			// Create the file parser
-			parser, err := NewFileParser(test.filename)
+			parser, err := NewFileParser(file.Name())
 			require.NoError(t, err)
 
 			// Find all interfaces
@@ -56,7 +85,24 @@ func Test_FileParser_FindInterfaces_OK(t *testing.T) {
 }
 
 func Test_FileParser_NewFileParser_OK(t *testing.T) {
-	_, err := NewFileParser("testdata/greeter.go")
+	// Create a file for the source code
+	file, err := ioutil.TempFile("", "interfaces.go")
+	require.NoError(t, err)
+	defer os.Remove(file.Name())
+
+	// Write the source code to the file
+	code := []byte(`
+		package main
+		type greeter interface {
+			SayHello(name string) (string, error)
+			SayGoodbye(name string) (string, error)
+		}
+	`)
+	err = ioutil.WriteFile(file.Name(), code, 0700)
+	require.NoError(t, err)
+
+	// Create the parser
+	_, err = NewFileParser(file.Name())
 	require.NoError(t, err)
 }
 

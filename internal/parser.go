@@ -58,12 +58,14 @@ func (p *FileParser) FindInterfaces() ([]*Interface, error) {
 }
 
 func createInterface(name string, iface *ast.InterfaceType) *Interface {
-	var methods []string
+	var methods []Method
 	for _, method := range iface.Methods.List {
 		if len(method.Names) == 0 {
 			continue
 		}
-		methods = append(methods, method.Names[0].Name)
+		methods = append(methods, Method{
+			Name: method.Names[0].Name,
+		})
 	}
 	return &Interface{
 		Name:    name,

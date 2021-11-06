@@ -7,7 +7,7 @@ import (
 )
 
 func main() {
-	filename := "internal/testdata/hello.go"
+	filename := "internal/testdata/greeter.go"
 	parser, err := parser.NewFileParser(filename)
 	if err != nil {
 		log.Fatalf("%v: %s", err, filename)
