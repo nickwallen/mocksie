@@ -1,10 +1,11 @@
 package parser
 
 import (
-	"github.com/stretchr/testify/require"
 	"io/ioutil"
 	"os"
 	"testing"
+
+	"github.com/stretchr/testify/require"
 )
 
 func Test_FileParser_FindInterfaces_OK(t *testing.T) {
@@ -57,7 +58,6 @@ func Test_FileParser_FindInterfaces_OK(t *testing.T) {
 				type thisOne interface {
 					DoThisThing() (string, error)
 				}
-				
 				type thatOne interface {
 					DoThatThing() (string, error)
 				}
@@ -170,6 +170,7 @@ func Test_FileParser_FindInterfaces_OK(t *testing.T) {
 
 			// Find all interfaces
 			found, err := parser.FindInterfaces()
+			require.NoError(t, err)
 			require.Equal(t, test.expected, found)
 		})
 	}

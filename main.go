@@ -2,12 +2,13 @@ package main
 
 import (
 	"fmt"
-	"github.com/nickwallen/farce/internal"
 	"log"
+
+	"github.com/nickwallen/farce/internal"
 )
 
 func main() {
-	filename := "internal/testdata/greeter.go"
+	filename := "main.go"
 	parser, err := parser.NewFileParser(filename)
 	if err != nil {
 		log.Fatalf("%v: %s", err, filename)
@@ -17,8 +18,13 @@ func main() {
 	if err != nil {
 		log.Fatalf("%v: %s", err, filename)
 	}
+
+	if len(ifaces) == 0 {
+		log.Printf("No interfaces found in %s", filename)
+		return
+	}
 	for _, iface := range ifaces {
-		fmt.Printf("Found interface '%s' with method(s) %s", iface.Name, iface.Methods)
+		fmt.Printf("Found '%s' with method(s) %s", iface.Name, iface.Methods)
 	}
 
 	// TODO generate mock for the interfaces

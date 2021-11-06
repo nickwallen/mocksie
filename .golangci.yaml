@@ -1,0 +1,28 @@
+#
+# Configures the various linters driven by golang-cli-lint. See the documentation
+# at https://golangci-lint.run/usage/configuration/.
+#
+# If the go build cache is not populated (likely in a CI build), running the linters 
+# will also trigger a build. The timeout below should include enough time to both 
+# build the source code and run the linters. 
+#
+# If the build cache is populated (likely on a developer's laptop), the linters are 
+# significantly faster as they can use the existing build cache.
+#
+run:
+  timeout: 5m
+
+linters:
+  enable:
+    - deadcode
+    - errcheck
+    - govet
+    - ineffassign
+    - revive
+    - staticcheck
+    - structcheck
+    - typecheck
+    - unused
+    - varcheck
+
+linters-settings:
