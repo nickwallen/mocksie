@@ -6,13 +6,15 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
+
+	"github.com/nickwallen/mocksie/internal"
 )
 
 func Test_FileParser_FindInterfaces_OK(t *testing.T) {
 	tests := []struct {
 		name     string
 		code     []byte
-		expected []*Interface
+		expected []*parser.Interface
 	}{
 		{
 			name: "multiple-methods",
@@ -23,26 +25,26 @@ func Test_FileParser_FindInterfaces_OK(t *testing.T) {
 					SayGoodbye(name string) (string, error)
 				}
 			`),
-			expected: []*Interface{
+			expected: []*parser.Interface{
 				{
 					Name: "greeter",
-					Methods: []Method{
+					Methods: []parser.Method{
 						{
 							Name: "SayHello",
-							Params: []Param{
+							Params: []parser.Param{
 								{Name: "name", Type: "string"},
 							},
-							Results: []Result{
+							Results: []parser.Result{
 								{Name: "", Type: "string"},
 								{Name: "", Type: "error"},
 							},
 						},
 						{
 							Name: "SayGoodbye",
-							Params: []Param{
+							Params: []parser.Param{
 								{Name: "name", Type: "string"},
 							},
-							Results: []Result{
+							Results: []parser.Result{
 								{Name: "", Type: "string"},
 								{Name: "", Type: "error"},
 							},
@@ -62,14 +64,14 @@ func Test_FileParser_FindInterfaces_OK(t *testing.T) {
 					DoThatThing() (string, error)
 				}
 			`),
-			expected: []*Interface{
+			expected: []*parser.Interface{
 				{
 					Name: "thisOne",
-					Methods: []Method{
+					Methods: []parser.Method{
 						{
 							Name:   "DoThisThing",
-							Params: []Param{},
-							Results: []Result{
+							Params: []parser.Param{},
+							Results: []parser.Result{
 								{Name: "", Type: "string"},
 								{Name: "", Type: "error"},
 							},
@@ -78,11 +80,11 @@ func Test_FileParser_FindInterfaces_OK(t *testing.T) {
 				},
 				{
 					Name: "thatOne",
-					Methods: []Method{
+					Methods: []parser.Method{
 						{
 							Name:   "DoThatThing",
-							Params: []Param{},
-							Results: []Result{
+							Params: []parser.Param{},
+							Results: []parser.Result{
 								{Name: "", Type: "string"},
 								{Name: "", Type: "error"},
 							},
@@ -97,7 +99,7 @@ func Test_FileParser_FindInterfaces_OK(t *testing.T) {
 				package main
 				// No interfaces defined here
 			`),
-			expected: []*Interface{},
+			expected: []*parser.Interface{},
 		},
 		{
 			name: "named-results",
@@ -107,16 +109,16 @@ func Test_FileParser_FindInterfaces_OK(t *testing.T) {
 					SayHello(name string) (greeting string, err error)
 				}
 			`),
-			expected: []*Interface{
+			expected: []*parser.Interface{
 				{
 					Name: "greeter",
-					Methods: []Method{
+					Methods: []parser.Method{
 						{
 							Name: "SayHello",
-							Params: []Param{
+							Params: []parser.Param{
 								{Name: "name", Type: "string"},
 							},
-							Results: []Result{
+							Results: []parser.Result{
 								{Name: "greeting", Type: "string"},
 								{Name: "err", Type: "error"},
 							},
@@ -133,16 +135,16 @@ func Test_FileParser_FindInterfaces_OK(t *testing.T) {
 					SayHello(string) (string, error)
 				}
 			`),
-			expected: []*Interface{
+			expected: []*parser.Interface{
 				{
 					Name: "greeter",
-					Methods: []Method{
+					Methods: []parser.Method{
 						{
 							Name: "SayHello",
-							Params: []Param{
+							Params: []parser.Param{
 								{Name: "", Type: "string"},
 							},
-							Results: []Result{
+							Results: []parser.Result{
 								{Name: "", Type: "string"},
 								{Name: "", Type: "error"},
 							},

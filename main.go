@@ -1,31 +1,36 @@
 package main
 
 import (
-	"fmt"
 	"log"
 
-	"github.com/nickwallen/mocksie/internal"
+	"github.com/nickwallen/mocksie/internal/generator"
+	"github.com/nickwallen/mocksie/internal/parser"
 )
 
 func main() {
-	filename := "main.go"
+	filename := "internal/testdata/greeter.go"
+
+	// Find all interfaces
 	parser, err := parser.NewFileParser(filename)
 	if err != nil {
 		log.Fatalf("%v: %s", err, filename)
 	}
-
 	ifaces, err := parser.FindInterfaces()
 	if err != nil {
 		log.Fatalf("%v: %s", err, filename)
 	}
-
 	if len(ifaces) == 0 {
 		log.Printf("No interfaces found in %s", filename)
 		return
 	}
-	for _, iface := range ifaces {
-		fmt.Printf("Found '%s' with method(s) %s", iface.Name, iface.Methods)
-	}
 
-	// TODO generate mock for the interfaces
+	// Generate a mock for each interface
+	gen := generator.NewGenerator()
+	for _, iface := range ifaces {
+
+		err := gen.GenerateMock(iface)
+		if err != nil {
+			log.Fatalf("Failed to generate mock for %s: %v", iface.Name, err)
+		}
+	}
 }
