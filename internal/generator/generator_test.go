@@ -108,6 +108,35 @@ func (m *mockGreeter) SayHello(name string) (greeting string, err error) {
 `,
 		},
 		{
+			name: "no-results",
+			iface: &mocksie.Interface{
+				Name: "greeter",
+				Methods: []mocksie.Method{
+					{
+						Name: "SayHello",
+						Params: []mocksie.Param{
+							{Name: "name", Type: "string"},
+						},
+						Results: []mocksie.Result{
+						},
+					},
+				},
+			},
+			expected: `
+// mockGreeter ia a mock implementation of the Greeter interface.
+type mockGreeter struct {
+    DoSayHello func (name string) 
+}
+
+// SayHello relies on DoSayHello for defining it's behavior. If this is causing a panic,
+// define DoSayHello within your test case.
+func (m *mockGreeter) SayHello(name string)  {
+    m.DoSayHello(name)
+}
+
+`,
+		},
+		{
 			name: "multiple-methods",
 			iface: &mocksie.Interface{
 				Name: "greeter",

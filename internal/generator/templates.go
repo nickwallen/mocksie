@@ -18,7 +18,7 @@ type mock{{ .Name | title }} struct {
 // {{ .Name }} relies on Do{{ .Name }} for defining it's behavior. If this is causing a panic,
 // define Do{{ .Name }} within your test case.
 func (m *mock{{ $.Name | title }}) {{ .Name }}({{ template "declare-params" . }}) {{ template "results" . }} {
-    return m.Do{{ .Name }}({{ template "use-params" . }})
+    {{ if gt (len .Results) 0 }}return {{ end }}m.Do{{ .Name }}({{ template "use-params" . }})
 }
 {{ end }}
 `
