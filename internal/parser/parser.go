@@ -8,13 +8,13 @@ import (
 	"path/filepath"
 )
 
-// FileParser parses a file containing Go source code.
-type FileParser struct {
+// Parser parses a file containing Go source code.
+type Parser struct {
 	filename string
 }
 
-// NewFileParser constructs a new FileParser.
-func NewFileParser(filename string) (*FileParser, error) {
+// New constructs a new Parser.
+func New(filename string) (*Parser, error) {
 	// Find the absolute path to the file
 	filename, err := filepath.Abs(filename)
 	if err != nil {
@@ -26,11 +26,11 @@ func NewFileParser(filename string) (*FileParser, error) {
 		return nil, err
 	}
 
-	return &FileParser{filename: filename}, nil
+	return &Parser{filename: filename}, nil
 }
 
 // FindInterfaces returns all interfaces defined in the file.
-func (p *FileParser) FindInterfaces() ([]*Interface, error) {
+func (p *Parser) FindInterfaces() ([]*Interface, error) {
 	// Parse the file
 	set := token.NewFileSet()
 	f, err := parser.ParseFile(set, p.filename, nil, parser.AllErrors)

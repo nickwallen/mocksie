@@ -155,7 +155,7 @@ func (m *mockGreeter) SayGoodbye(name string) (string, error) {
 		t.Run(test.name, func(t *testing.T) {
 			// Create a generator
 			out := bytes.NewBufferString("")
-			gen, err := NewGenerator(out)
+			gen, err := New(out)
 			require.NoError(t, err)
 
 			// Generate the mock

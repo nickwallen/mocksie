@@ -14,8 +14,8 @@ type Generator struct {
 	tmpl   *template.Template
 }
 
-// NewGenerator create a new Generator.
-func NewGenerator(writer io.Writer) (*Generator, error) {
+// New create a new Generator.
+func New(writer io.Writer) (*Generator, error) {
 	return &Generator{
 		writer: writer,
 		tmpl:   initTemplates(),
@@ -27,6 +27,7 @@ func (g *Generator) GenerateMock(iface *parser.Interface) error {
 	return g.tmpl.ExecuteTemplate(g.writer, "base", iface)
 }
 
+// initTemplates initialize the templates that are used to generate the mocks.
 func initTemplates() *template.Template {
 	tmpl := template.New("").Funcs(sprig.FuncMap())
 	tmpl = template.Must(tmpl.New("base").Parse(baseTemplate))

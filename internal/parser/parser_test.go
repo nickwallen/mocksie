@@ -165,7 +165,7 @@ func Test_FileParser_FindInterfaces_OK(t *testing.T) {
 			require.NoError(t, err)
 
 			// Create the file parser
-			parser, err := NewFileParser(file.Name())
+			parser, err := New(file.Name())
 			require.NoError(t, err)
 
 			// Find all interfaces
@@ -194,11 +194,11 @@ func Test_FileParser_NewFileParser_OK(t *testing.T) {
 	require.NoError(t, err)
 
 	// Create the parser
-	_, err = NewFileParser(file.Name())
+	_, err = New(file.Name())
 	require.NoError(t, err)
 }
 
 func Test_FileParser_NewFileParser_FileDoesNotExist(t *testing.T) {
-	_, err := NewFileParser("/this/file/does/not/exist.go")
+	_, err := New("/this/file/does/not/exist.go")
 	require.Error(t, err)
 }
