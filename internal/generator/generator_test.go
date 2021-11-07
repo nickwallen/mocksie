@@ -32,10 +32,12 @@ func Test_Generator_GenerateMock_OK(t *testing.T) {
 				},
 			},
 			expected: `
+// mockGreeter ia a mock implementation of the Greeter interface.
 type mockGreeter struct {
     DoSayHello func (first string, last string) error
 }
 
+// SayHello relies on DoSayHello for defining it's behavior.
 func (m *mockGreeter) SayHello(first string, last string) error {
     return m.DoSayHello(first, last)
 }
@@ -59,10 +61,12 @@ func (m *mockGreeter) SayHello(first string, last string) error {
 				},
 			},
 			expected: `
+// mockGreeter ia a mock implementation of the Greeter interface.
 type mockGreeter struct {
     DoSayHello func (name string) (string, error)
 }
 
+// SayHello relies on DoSayHello for defining it's behavior.
 func (m *mockGreeter) SayHello(name string) (string, error) {
     return m.DoSayHello(name)
 }
@@ -86,10 +90,12 @@ func (m *mockGreeter) SayHello(name string) (string, error) {
 				},
 			},
 			expected: `
+// mockGreeter ia a mock implementation of the Greeter interface.
 type mockGreeter struct {
     DoSayHello func (name string) (greeting string, err error)
 }
 
+// SayHello relies on DoSayHello for defining it's behavior.
 func (m *mockGreeter) SayHello(name string) (greeting string, err error) {
     return m.DoSayHello(name)
 }
