@@ -5,7 +5,7 @@ import (
 	"os"
 
 	"github.com/Masterminds/sprig"
-	"github.com/nickwallen/mocksie/internal"
+	"github.com/nickwallen/mocksie/internal/parser"
 )
 
 type writer interface {

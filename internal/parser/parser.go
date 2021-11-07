@@ -6,8 +6,6 @@ import (
 	"go/token"
 	"os"
 	"path/filepath"
-
-	parser2 "github.com/nickwallen/mocksie/internal"
 )
 
 // FileParser parses a file containing Go source code.
@@ -32,7 +30,7 @@ func NewFileParser(filename string) (*FileParser, error) {
 }
 
 // FindInterfaces returns all interfaces defined in the file.
-func (p *FileParser) FindInterfaces() ([]*parser2.Interface, error) {
+func (p *FileParser) FindInterfaces() ([]*Interface, error) {
 	// Parse the file
 	set := token.NewFileSet()
 	f, err := parser.ParseFile(set, p.filename, nil, parser.AllErrors)
@@ -41,7 +39,7 @@ func (p *FileParser) FindInterfaces() ([]*parser2.Interface, error) {
 	}
 
 	// Find any interfaces
-	ifaces := make([]*parser2.Interface, 0)
+	ifaces := make([]*Interface, 0)
 	for _, decl := range f.Decls {
 		if _, ok := decl.(*ast.GenDecl); !ok {
 			continue // Not a declaration
@@ -57,7 +55,7 @@ func (p *FileParser) FindInterfaces() ([]*parser2.Interface, error) {
 				continue // Not an interface
 			}
 			typ := spec.(*ast.TypeSpec)
-			ifaces = append(ifaces, &parser2.Interface{
+			ifaces = append(ifaces, &Interface{
 				Name:    typ.Name.String(),
 				Methods: buildMethods(typ.Type.(*ast.InterfaceType)),
 			})
@@ -66,8 +64,8 @@ func (p *FileParser) FindInterfaces() ([]*parser2.Interface, error) {
 	return ifaces, nil
 }
 
-func buildMethods(typ *ast.InterfaceType) []parser2.Method {
-	var methods []parser2.Method
+func buildMethods(typ *ast.InterfaceType) []Method {
+	var methods []Method
 	for _, field := range typ.Methods.List {
 		// Expect a function type
 		if _, ok := field.Type.(*ast.FuncType); !ok {
@@ -81,7 +79,7 @@ func buildMethods(typ *ast.InterfaceType) []parser2.Method {
 
 		// Build the method
 		funcType := field.Type.(*ast.FuncType)
-		methods = append(methods, parser2.Method{
+		methods = append(methods, Method{
 			Name:    field.Names[0].Name,
 			Params:  buildParams(funcType),
 			Results: buildResults(funcType),
@@ -90,8 +88,8 @@ func buildMethods(typ *ast.InterfaceType) []parser2.Method {
 	return methods
 }
 
-func buildResults(funcType *ast.FuncType) []parser2.Result {
-	results := make([]parser2.Result, 0)
+func buildResults(funcType *ast.FuncType) []Result {
+	results := make([]Result, 0)
 	for i := range funcType.Results.List {
 		field := funcType.Results.List[i]
 
@@ -107,7 +105,7 @@ func buildResults(funcType *ast.FuncType) []parser2.Result {
 		}
 
 		// Build the result
-		results = append(results, parser2.Result{
+		results = append(results, Result{
 			Name: name,
 			Type: field.Type.(*ast.Ident).Name,
 		})
@@ -115,8 +113,8 @@ func buildResults(funcType *ast.FuncType) []parser2.Result {
 	return results
 }
 
-func buildParams(funcType *ast.FuncType) []parser2.Param {
-	params := make([]parser2.Param, 0)
+func buildParams(funcType *ast.FuncType) []Param {
+	params := make([]Param, 0)
 	for i := range funcType.Params.List {
 		field := funcType.Params.List[i]
 
@@ -132,7 +130,7 @@ func buildParams(funcType *ast.FuncType) []parser2.Param {
 		}
 
 		// Build the param
-		params = append(params, parser2.Param{
+		params = append(params, Param{
 			Name: name,
 			Type: field.Type.(*ast.Ident).Name,
 		})

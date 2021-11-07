@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"testing"
 
-	"github.com/nickwallen/mocksie/internal"
+	"github.com/nickwallen/mocksie/internal/parser"
 	"github.com/stretchr/testify/require"
 )
 
