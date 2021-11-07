@@ -3,6 +3,8 @@ package generator
 const (
 	// baseTemplate defines how the mock implementation is generated.
 	baseTemplate = `
+package {{ .Package }}
+
 // mock{{ .Name | title }} ia a mock implementation of the Greeter interface.
 type mock{{ .Name | title }} struct {
 {{- range  .Methods }}

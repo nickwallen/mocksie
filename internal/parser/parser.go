@@ -34,8 +34,7 @@ func New(filename string) (*Parser, error) {
 // FindInterfaces returns all interfaces defined in the file.
 func (p *Parser) FindInterfaces() ([]*mocksie.Interface, error) {
 	// Parse the file
-	set := token.NewFileSet()
-	f, err := parser.ParseFile(set, p.filename, nil, parser.AllErrors)
+	f, err := parser.ParseFile(token.NewFileSet(), p.filename, nil, parser.AllErrors)
 	if err != nil {
 		return nil, err
 	}
@@ -59,6 +58,7 @@ func (p *Parser) FindInterfaces() ([]*mocksie.Interface, error) {
 			typ := spec.(*ast.TypeSpec)
 			ifaces = append(ifaces, &mocksie.Interface{
 				Name:    typ.Name.String(),
+				Package: f.Name.Name,
 				Methods: buildMethods(typ.Type.(*ast.InterfaceType)),
 			})
 		}

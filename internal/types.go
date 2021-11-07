@@ -3,6 +3,7 @@ package mocksie
 // Interface is an interface that will need to be mocked.
 type Interface struct {
 	Name    string
+	Package string
 	Methods []Method
 }
 

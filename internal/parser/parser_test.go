@@ -26,7 +26,8 @@ func Test_FileParser_FindInterfaces_OK(t *testing.T) {
 			`),
 			expected: []*mocksie.Interface{
 				{
-					Name: "greeter",
+					Name:    "greeter",
+					Package: "main",
 					Methods: []mocksie.Method{
 						{
 							Name: "SayHello",
@@ -62,6 +63,7 @@ func Test_FileParser_FindInterfaces_OK(t *testing.T) {
 			expected: []*mocksie.Interface{
 				{
 					Name:    "greeter",
+					Package: "main",
 					Methods: []mocksie.Method{},
 				},
 			},
@@ -79,7 +81,8 @@ func Test_FileParser_FindInterfaces_OK(t *testing.T) {
 			`),
 			expected: []*mocksie.Interface{
 				{
-					Name: "thisOne",
+					Name:    "thisOne",
+					Package: "main",
 					Methods: []mocksie.Method{
 						{
 							Name:   "DoThisThing",
@@ -92,7 +95,8 @@ func Test_FileParser_FindInterfaces_OK(t *testing.T) {
 					},
 				},
 				{
-					Name: "thatOne",
+					Name:    "thatOne",
+					Package: "main",
 					Methods: []mocksie.Method{
 						{
 							Name:   "DoThatThing",
@@ -124,7 +128,8 @@ func Test_FileParser_FindInterfaces_OK(t *testing.T) {
 			`),
 			expected: []*mocksie.Interface{
 				{
-					Name: "greeter",
+					Name:    "greeter",
+					Package: "main",
 					Methods: []mocksie.Method{
 						{
 							Name: "SayHello",
@@ -150,7 +155,8 @@ func Test_FileParser_FindInterfaces_OK(t *testing.T) {
 			`),
 			expected: []*mocksie.Interface{
 				{
-					Name: "greeter",
+					Name:    "greeter",
+					Package: "main",
 					Methods: []mocksie.Method{
 						{
 							Name: "SayHello",

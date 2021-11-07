@@ -2,6 +2,8 @@ package generator
 
 import (
 	"bytes"
+	"go/parser"
+	"go/token"
 	"testing"
 
 	"github.com/nickwallen/mocksie/internal"
@@ -17,7 +19,8 @@ func Test_Generator_GenerateMock_OK(t *testing.T) {
 		{
 			name: "methods-multiple",
 			iface: &mocksie.Interface{
-				Name: "greeter",
+				Name:    "greeter",
+				Package: "main",
 				Methods: []mocksie.Method{
 					{
 						Name: "SayHello",
@@ -42,6 +45,8 @@ func Test_Generator_GenerateMock_OK(t *testing.T) {
 				},
 			},
 			expected: `
+package main
+
 // mockGreeter ia a mock implementation of the Greeter interface.
 type mockGreeter struct {
     DoSayHello func (name string) (string, error)
@@ -65,7 +70,8 @@ func (m *mockGreeter) SayGoodbye(name string) (string, error) {
 		{
 			name: "results-one",
 			iface: &mocksie.Interface{
-				Name: "greeter",
+				Name:    "greeter",
+				Package: "main",
 				Methods: []mocksie.Method{
 					{
 						Name: "SayHello",
@@ -79,6 +85,8 @@ func (m *mockGreeter) SayGoodbye(name string) (string, error) {
 				},
 			},
 			expected: `
+package main
+
 // mockGreeter ia a mock implementation of the Greeter interface.
 type mockGreeter struct {
     DoSayHello func (name string) string
@@ -95,7 +103,8 @@ func (m *mockGreeter) SayHello(name string) string {
 		{
 			name: "results-none",
 			iface: &mocksie.Interface{
-				Name: "greeter",
+				Name:    "greeter",
+				Package: "main",
 				Methods: []mocksie.Method{
 					{
 						Name: "SayHello",
@@ -107,6 +116,8 @@ func (m *mockGreeter) SayHello(name string) string {
 				},
 			},
 			expected: `
+package main
+
 // mockGreeter ia a mock implementation of the Greeter interface.
 type mockGreeter struct {
     DoSayHello func (name string) 
@@ -123,7 +134,8 @@ func (m *mockGreeter) SayHello(name string)  {
 		{
 			name: "results-named",
 			iface: &mocksie.Interface{
-				Name: "greeter",
+				Name:    "greeter",
+				Package: "main",
 				Methods: []mocksie.Method{
 					{
 						Name: "SayHello",
@@ -138,6 +150,8 @@ func (m *mockGreeter) SayHello(name string)  {
 				},
 			},
 			expected: `
+package main
+
 // mockGreeter ia a mock implementation of the Greeter interface.
 type mockGreeter struct {
     DoSayHello func (name string) (greeting string, err error)
@@ -154,7 +168,8 @@ func (m *mockGreeter) SayHello(name string) (greeting string, err error) {
 		{
 			name: "params-multiple",
 			iface: &mocksie.Interface{
-				Name: "greeter",
+				Name:    "greeter",
+				Package: "main",
 				Methods: []mocksie.Method{
 					{
 						Name: "SayHello",
@@ -170,6 +185,8 @@ func (m *mockGreeter) SayHello(name string) (greeting string, err error) {
 				},
 			},
 			expected: `
+package main
+
 // mockGreeter ia a mock implementation of the Greeter interface.
 type mockGreeter struct {
     DoSayHello func (first string, last string) (string, error)
@@ -186,7 +203,8 @@ func (m *mockGreeter) SayHello(first string, last string) (string, error) {
 		{
 			name: "params-none",
 			iface: &mocksie.Interface{
-				Name: "greeter",
+				Name:    "greeter",
+				Package: "main",
 				Methods: []mocksie.Method{
 					{
 						Name:   "SayHello",
@@ -199,6 +217,8 @@ func (m *mockGreeter) SayHello(first string, last string) (string, error) {
 				},
 			},
 			expected: `
+package main
+
 // mockGreeter ia a mock implementation of the Greeter interface.
 type mockGreeter struct {
     DoSayHello func () (string, error)
@@ -215,7 +235,8 @@ func (m *mockGreeter) SayHello() (string, error) {
 		{
 			name: "params-unnamed",
 			iface: &mocksie.Interface{
-				Name: "greeter",
+				Name:    "greeter",
+				Package: "main",
 				Methods: []mocksie.Method{
 					{
 						Name: "SayHello",
@@ -227,6 +248,8 @@ func (m *mockGreeter) SayHello() (string, error) {
 				},
 			},
 			expected: `
+package main
+
 // mockGreeter ia a mock implementation of the Greeter interface.
 type mockGreeter struct {
     DoSayHello func (name string) 
@@ -252,6 +275,10 @@ func (m *mockGreeter) SayHello(name string)  {
 			err = gen.GenerateMock(test.iface)
 			require.NoError(t, err)
 			require.Equal(t, test.expected, out.String())
+
+			// Validate the generated code
+			_, err = parser.ParseFile(token.NewFileSet(), "", out.String(), parser.AllErrors)
+			require.NoError(t, err)
 		})
 	}
 }

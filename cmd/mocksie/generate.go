@@ -15,8 +15,9 @@ var generateArgs = struct {
 
 // generateCmd the command that generates mock implementations of an interface.
 var generateCmd = &cobra.Command{
-	Use:   "generate",
-	Short: "Generate mocks.",
+	Use:     "generate",
+	Aliases: []string{"gen"},
+	Short:   "Generate mocks.",
 	Run: func(cmd *cobra.Command, _ []string) {
 		out := cmd.OutOrStdout()
 		log.SetOutput(out)
