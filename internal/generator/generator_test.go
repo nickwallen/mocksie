@@ -153,16 +153,15 @@ func (m *mockGreeter) SayGoodbye(name string) (string, error) {
 	}
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			gen, err := NewGenerator()
+			// Create a generator
+			out := bytes.NewBufferString("")
+			gen, err := NewGenerator(out)
 			require.NoError(t, err)
 
-			// Capture the output
-			writer := bytes.NewBufferString("")
-			gen.writer = writer
-
+			// Generate the mock
 			err = gen.GenerateMock(test.iface)
 			require.NoError(t, err)
-			require.Equal(t, test.expected, writer.String())
+			require.Equal(t, test.expected, out.String())
 		})
 	}
 }

@@ -2,26 +2,22 @@ package generator
 
 import (
 	"html/template"
-	"os"
+	"io"
 
 	"github.com/Masterminds/sprig"
 	"github.com/nickwallen/mocksie/internal/parser"
 )
 
-type writer interface {
-	Write(p []byte) (n int, err error)
-}
-
 // Generator generates the mock implementation of an Interface.
 type Generator struct {
-	writer writer
+	writer io.Writer
 	tmpl   *template.Template
 }
 
 // NewGenerator create a new Generator.
-func NewGenerator() (*Generator, error) {
+func NewGenerator(writer io.Writer) (*Generator, error) {
 	return &Generator{
-		writer: os.Stdout,
+		writer: writer,
 		tmpl:   initTemplates(),
 	}, nil
 }
