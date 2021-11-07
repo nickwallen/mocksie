@@ -15,7 +15,8 @@ type mock{{ .Name | title }} struct {
 	// methodsTemplate defines how the methods of the mock implementation are generated.
 	methodsTemplate = `
 {{- range .Methods }}
-// {{ .Name }} relies on Do{{ .Name }} for defining it's behavior. If this is causing a panic, define Do{{ .Name }}.
+// {{ .Name }} relies on Do{{ .Name }} for defining it's behavior. If this is causing a panic,
+// define Do{{ .Name }} within your test case.
 func (m *mock{{ $.Name | title }}) {{ .Name }}({{ template "declare-params" . }}) {{ template "results" . }} {
     return m.Do{{ .Name }}({{ template "use-params" . }})
 }

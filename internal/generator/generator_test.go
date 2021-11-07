@@ -37,7 +37,8 @@ type mockGreeter struct {
     DoSayHello func (first string, last string) error
 }
 
-// SayHello relies on DoSayHello for defining it's behavior. If this is causing a panic, define DoSayHello.
+// SayHello relies on DoSayHello for defining it's behavior. If this is causing a panic,
+// define DoSayHello within your test case.
 func (m *mockGreeter) SayHello(first string, last string) error {
     return m.DoSayHello(first, last)
 }
@@ -67,7 +68,8 @@ type mockGreeter struct {
     DoSayHello func (name string) (string, error)
 }
 
-// SayHello relies on DoSayHello for defining it's behavior. If this is causing a panic, define DoSayHello.
+// SayHello relies on DoSayHello for defining it's behavior. If this is causing a panic,
+// define DoSayHello within your test case.
 func (m *mockGreeter) SayHello(name string) (string, error) {
     return m.DoSayHello(name)
 }
@@ -97,7 +99,8 @@ type mockGreeter struct {
     DoSayHello func (name string) (greeting string, err error)
 }
 
-// SayHello relies on DoSayHello for defining it's behavior. If this is causing a panic, define DoSayHello.
+// SayHello relies on DoSayHello for defining it's behavior. If this is causing a panic,
+// define DoSayHello within your test case.
 func (m *mockGreeter) SayHello(name string) (greeting string, err error) {
     return m.DoSayHello(name)
 }
@@ -138,12 +141,14 @@ type mockGreeter struct {
     DoSayGoodbye func (name string) (string, error)
 }
 
-// SayHello relies on DoSayHello for defining it's behavior. If this is causing a panic, define DoSayHello.
+// SayHello relies on DoSayHello for defining it's behavior. If this is causing a panic,
+// define DoSayHello within your test case.
 func (m *mockGreeter) SayHello(name string) (string, error) {
     return m.DoSayHello(name)
 }
 
-// SayGoodbye relies on DoSayGoodbye for defining it's behavior. If this is causing a panic, define DoSayGoodbye.
+// SayGoodbye relies on DoSayGoodbye for defining it's behavior. If this is causing a panic,
+// define DoSayGoodbye within your test case.
 func (m *mockGreeter) SayGoodbye(name string) (string, error) {
     return m.DoSayGoodbye(name)
 }
