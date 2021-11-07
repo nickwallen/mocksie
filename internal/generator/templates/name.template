@@ -1,3 +1,0 @@
-{{- define "name" -}}
-mock{{ .Name | title }}
-{{- end -}}

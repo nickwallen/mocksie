@@ -1,5 +1,0 @@
-{{- define "declare-params" -}}
-{{- range $index, $param := .Params -}}
-{{ if $index }}, {{ end }}{{ .Name }} {{ .Type }}
-{{- end -}}
-{{- end -}}

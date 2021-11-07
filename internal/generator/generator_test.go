@@ -37,10 +37,11 @@ type mockGreeter struct {
     DoSayHello func (first string, last string) error
 }
 
-// SayHello relies on DoSayHello for defining it's behavior.
+// SayHello relies on DoSayHello for defining it's behavior. If this is causing a panic, define DoSayHello.
 func (m *mockGreeter) SayHello(first string, last string) error {
     return m.DoSayHello(first, last)
 }
+
 `,
 		},
 		{
@@ -66,10 +67,11 @@ type mockGreeter struct {
     DoSayHello func (name string) (string, error)
 }
 
-// SayHello relies on DoSayHello for defining it's behavior.
+// SayHello relies on DoSayHello for defining it's behavior. If this is causing a panic, define DoSayHello.
 func (m *mockGreeter) SayHello(name string) (string, error) {
     return m.DoSayHello(name)
 }
+
 `,
 		},
 		{
@@ -95,20 +97,70 @@ type mockGreeter struct {
     DoSayHello func (name string) (greeting string, err error)
 }
 
-// SayHello relies on DoSayHello for defining it's behavior.
+// SayHello relies on DoSayHello for defining it's behavior. If this is causing a panic, define DoSayHello.
 func (m *mockGreeter) SayHello(name string) (greeting string, err error) {
     return m.DoSayHello(name)
 }
+
+`,
+		},
+		{
+			name: "multiple-methods",
+			iface: &parser.Interface{
+				Name: "greeter",
+				Methods: []parser.Method{
+					{
+						Name: "SayHello",
+						Params: []parser.Param{
+							{Name: "name", Type: "string"},
+						},
+						Results: []parser.Result{
+							{Name: "", Type: "string"},
+							{Name: "", Type: "error"},
+						},
+					},
+					{
+						Name: "SayGoodbye",
+						Params: []parser.Param{
+							{Name: "name", Type: "string"},
+						},
+						Results: []parser.Result{
+							{Name: "", Type: "string"},
+							{Name: "", Type: "error"},
+						},
+					},
+				},
+			},
+			expected: `
+// mockGreeter ia a mock implementation of the Greeter interface.
+type mockGreeter struct {
+    DoSayHello func (name string) (string, error)
+    DoSayGoodbye func (name string) (string, error)
+}
+
+// SayHello relies on DoSayHello for defining it's behavior. If this is causing a panic, define DoSayHello.
+func (m *mockGreeter) SayHello(name string) (string, error) {
+    return m.DoSayHello(name)
+}
+
+// SayGoodbye relies on DoSayGoodbye for defining it's behavior. If this is causing a panic, define DoSayGoodbye.
+func (m *mockGreeter) SayGoodbye(name string) (string, error) {
+    return m.DoSayGoodbye(name)
+}
+
 `,
 		},
 	}
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
+			gen, err := NewGenerator()
+			require.NoError(t, err)
+
+			// Capture the output
 			writer := bytes.NewBufferString("")
-			gen := NewGenerator()
 			gen.writer = writer
 
-			err := gen.GenerateMock(test.iface)
+			err = gen.GenerateMock(test.iface)
 			require.NoError(t, err)
 			require.Equal(t, test.expected, writer.String())
 		})

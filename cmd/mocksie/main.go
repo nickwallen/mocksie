@@ -24,10 +24,14 @@ func main() {
 		return
 	}
 
-	// Generate a mock for each interface
-	gen := generator.NewGenerator()
-	for _, iface := range ifaces {
+	// Generate the generate
+	gen, err := generator.NewGenerator()
+	if err != nil {
+		log.Fatalf("Failed to initialize the generator: %v", err)
+	}
 
+	// Create a mock for each interface
+	for _, iface := range ifaces {
 		err := gen.GenerateMock(iface)
 		if err != nil {
 			log.Fatalf("Failed to generate mock for %s: %v", iface.Name, err)
