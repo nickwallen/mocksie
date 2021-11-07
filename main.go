@@ -1,9 +1,9 @@
 package main
 
 import (
-	"github.com/nickwallen/mocksie/cmd"
+	"github.com/nickwallen/mocksie/cmd/mocksie"
 )
 
 func main() {
-	cmd.Execute()
+	mocksie.Execute()
 }

@@ -1,4 +1,4 @@
-package cmd
+package mocksie
 
 import (
 	"fmt"
