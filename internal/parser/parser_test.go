@@ -16,7 +16,7 @@ func Test_FileParser_FindInterfaces_OK(t *testing.T) {
 		expected []*mocksie.Interface
 	}{
 		{
-			name: "multiple-methods",
+			name: "methods-many",
 			code: []byte(`
 				package main
 				type greeter interface {
@@ -53,7 +53,21 @@ func Test_FileParser_FindInterfaces_OK(t *testing.T) {
 			},
 		},
 		{
-			name: "multiple-interfaces",
+			name: "methods-none",
+			code: []byte(`
+				package main
+				type greeter interface {
+				}
+			`),
+			expected: []*mocksie.Interface{
+				{
+					Name:    "greeter",
+					Methods: []mocksie.Method{},
+				},
+			},
+		},
+		{
+			name: "interfaces-many",
 			code: []byte(`
 				package main
 				type thisOne interface {
@@ -93,7 +107,7 @@ func Test_FileParser_FindInterfaces_OK(t *testing.T) {
 			},
 		},
 		{
-			name: "no-interfaces",
+			name: "interfaces-none",
 			code: []byte(`
 				package main
 				// No interfaces defined here
@@ -101,7 +115,7 @@ func Test_FileParser_FindInterfaces_OK(t *testing.T) {
 			expected: []*mocksie.Interface{},
 		},
 		{
-			name: "named-results",
+			name: "results-named",
 			code: []byte(`
 				package main
 				type greeter interface {
@@ -127,7 +141,7 @@ func Test_FileParser_FindInterfaces_OK(t *testing.T) {
 			},
 		},
 		{
-			name: "unnamed-params",
+			name: "params-unnamed",
 			code: []byte(`
 				package main
 				type greeter interface {

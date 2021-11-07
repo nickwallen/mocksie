@@ -67,7 +67,7 @@ func (p *Parser) FindInterfaces() ([]*mocksie.Interface, error) {
 }
 
 func buildMethods(typ *ast.InterfaceType) []mocksie.Method {
-	var methods []mocksie.Method
+	methods := make([]mocksie.Method, 0)
 	for _, field := range typ.Methods.List {
 		// Expect a function type
 		if _, ok := field.Type.(*ast.FuncType); !ok {
