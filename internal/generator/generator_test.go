@@ -4,28 +4,28 @@ import (
 	"bytes"
 	"testing"
 
-	"github.com/nickwallen/mocksie/internal/parser"
+	"github.com/nickwallen/mocksie/internal"
 	"github.com/stretchr/testify/require"
 )
 
 func Test_Generator_GenerateMock_OK(t *testing.T) {
 	tests := []struct {
 		name     string
-		iface    *parser.Interface
+		iface    *mocksie.Interface
 		expected string
 	}{
 		{
 			name: "multiple-parameters",
-			iface: &parser.Interface{
+			iface: &mocksie.Interface{
 				Name: "greeter",
-				Methods: []parser.Method{
+				Methods: []mocksie.Method{
 					{
 						Name: "SayHello",
-						Params: []parser.Param{
+						Params: []mocksie.Param{
 							{Name: "first", Type: "string"},
 							{Name: "last", Type: "string"},
 						},
-						Results: []parser.Result{
+						Results: []mocksie.Result{
 							{Name: "", Type: "error"},
 						},
 					},
@@ -47,15 +47,15 @@ func (m *mockGreeter) SayHello(first string, last string) error {
 		},
 		{
 			name: "multiple-results",
-			iface: &parser.Interface{
+			iface: &mocksie.Interface{
 				Name: "greeter",
-				Methods: []parser.Method{
+				Methods: []mocksie.Method{
 					{
 						Name: "SayHello",
-						Params: []parser.Param{
+						Params: []mocksie.Param{
 							{Name: "name", Type: "string"},
 						},
-						Results: []parser.Result{
+						Results: []mocksie.Result{
 							{Name: "", Type: "string"},
 							{Name: "", Type: "error"},
 						},
@@ -78,15 +78,15 @@ func (m *mockGreeter) SayHello(name string) (string, error) {
 		},
 		{
 			name: "named-results",
-			iface: &parser.Interface{
+			iface: &mocksie.Interface{
 				Name: "greeter",
-				Methods: []parser.Method{
+				Methods: []mocksie.Method{
 					{
 						Name: "SayHello",
-						Params: []parser.Param{
+						Params: []mocksie.Param{
 							{Name: "name", Type: "string"},
 						},
-						Results: []parser.Result{
+						Results: []mocksie.Result{
 							{Name: "greeting", Type: "string"},
 							{Name: "err", Type: "error"},
 						},
@@ -109,25 +109,25 @@ func (m *mockGreeter) SayHello(name string) (greeting string, err error) {
 		},
 		{
 			name: "multiple-methods",
-			iface: &parser.Interface{
+			iface: &mocksie.Interface{
 				Name: "greeter",
-				Methods: []parser.Method{
+				Methods: []mocksie.Method{
 					{
 						Name: "SayHello",
-						Params: []parser.Param{
+						Params: []mocksie.Param{
 							{Name: "name", Type: "string"},
 						},
-						Results: []parser.Result{
+						Results: []mocksie.Result{
 							{Name: "", Type: "string"},
 							{Name: "", Type: "error"},
 						},
 					},
 					{
 						Name: "SayGoodbye",
-						Params: []parser.Param{
+						Params: []mocksie.Param{
 							{Name: "name", Type: "string"},
 						},
-						Results: []parser.Result{
+						Results: []mocksie.Result{
 							{Name: "", Type: "string"},
 							{Name: "", Type: "error"},
 						},

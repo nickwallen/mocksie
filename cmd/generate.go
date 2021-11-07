@@ -3,9 +3,10 @@ package cmd
 import (
 	"log"
 
+	"github.com/spf13/cobra"
+
 	"github.com/nickwallen/mocksie/internal/generator"
 	"github.com/nickwallen/mocksie/internal/parser"
-	"github.com/spf13/cobra"
 )
 
 var generateArgs = struct {

@@ -6,6 +6,8 @@ import (
 	"go/token"
 	"os"
 	"path/filepath"
+
+	"github.com/nickwallen/mocksie/internal"
 )
 
 // Parser parses a file containing Go source code.
@@ -30,7 +32,7 @@ func New(filename string) (*Parser, error) {
 }
 
 // FindInterfaces returns all interfaces defined in the file.
-func (p *Parser) FindInterfaces() ([]*Interface, error) {
+func (p *Parser) FindInterfaces() ([]*mocksie.Interface, error) {
 	// Parse the file
 	set := token.NewFileSet()
 	f, err := parser.ParseFile(set, p.filename, nil, parser.AllErrors)
@@ -39,7 +41,7 @@ func (p *Parser) FindInterfaces() ([]*Interface, error) {
 	}
 
 	// Find any interfaces
-	ifaces := make([]*Interface, 0)
+	ifaces := make([]*mocksie.Interface, 0)
 	for _, decl := range f.Decls {
 		if _, ok := decl.(*ast.GenDecl); !ok {
 			continue // Not a declaration
@@ -55,7 +57,7 @@ func (p *Parser) FindInterfaces() ([]*Interface, error) {
 				continue // Not an interface
 			}
 			typ := spec.(*ast.TypeSpec)
-			ifaces = append(ifaces, &Interface{
+			ifaces = append(ifaces, &mocksie.Interface{
 				Name:    typ.Name.String(),
 				Methods: buildMethods(typ.Type.(*ast.InterfaceType)),
 			})
@@ -64,8 +66,8 @@ func (p *Parser) FindInterfaces() ([]*Interface, error) {
 	return ifaces, nil
 }
 
-func buildMethods(typ *ast.InterfaceType) []Method {
-	var methods []Method
+func buildMethods(typ *ast.InterfaceType) []mocksie.Method {
+	var methods []mocksie.Method
 	for _, field := range typ.Methods.List {
 		// Expect a function type
 		if _, ok := field.Type.(*ast.FuncType); !ok {
@@ -79,7 +81,7 @@ func buildMethods(typ *ast.InterfaceType) []Method {
 
 		// Build the method
 		funcType := field.Type.(*ast.FuncType)
-		methods = append(methods, Method{
+		methods = append(methods, mocksie.Method{
 			Name:    field.Names[0].Name,
 			Params:  buildParams(funcType),
 			Results: buildResults(funcType),
@@ -88,8 +90,8 @@ func buildMethods(typ *ast.InterfaceType) []Method {
 	return methods
 }
 
-func buildResults(funcType *ast.FuncType) []Result {
-	results := make([]Result, 0)
+func buildResults(funcType *ast.FuncType) []mocksie.Result {
+	results := make([]mocksie.Result, 0)
 	for i := range funcType.Results.List {
 		field := funcType.Results.List[i]
 
@@ -105,7 +107,7 @@ func buildResults(funcType *ast.FuncType) []Result {
 		}
 
 		// Build the result
-		results = append(results, Result{
+		results = append(results, mocksie.Result{
 			Name: name,
 			Type: field.Type.(*ast.Ident).Name,
 		})
@@ -113,8 +115,8 @@ func buildResults(funcType *ast.FuncType) []Result {
 	return results
 }
 
-func buildParams(funcType *ast.FuncType) []Param {
-	params := make([]Param, 0)
+func buildParams(funcType *ast.FuncType) []mocksie.Param {
+	params := make([]mocksie.Param, 0)
 	for i := range funcType.Params.List {
 		field := funcType.Params.List[i]
 
@@ -130,7 +132,7 @@ func buildParams(funcType *ast.FuncType) []Param {
 		}
 
 		// Build the param
-		params = append(params, Param{
+		params = append(params, mocksie.Param{
 			Name: name,
 			Type: field.Type.(*ast.Ident).Name,
 		})

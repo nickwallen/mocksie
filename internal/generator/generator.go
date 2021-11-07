@@ -5,7 +5,7 @@ import (
 	"io"
 
 	"github.com/Masterminds/sprig"
-	"github.com/nickwallen/mocksie/internal/parser"
+	"github.com/nickwallen/mocksie/internal"
 )
 
 // Generator generates the mock implementation of an Interface.
@@ -23,7 +23,7 @@ func New(writer io.Writer) (*Generator, error) {
 }
 
 // GenerateMock generates a mock for an Interface.
-func (g *Generator) GenerateMock(iface *parser.Interface) error {
+func (g *Generator) GenerateMock(iface *mocksie.Interface) error {
 	return g.tmpl.ExecuteTemplate(g.writer, "base", iface)
 }
 

@@ -5,6 +5,7 @@ import (
 	"os"
 	"testing"
 
+	"github.com/nickwallen/mocksie/internal"
 	"github.com/stretchr/testify/require"
 )
 
@@ -12,7 +13,7 @@ func Test_FileParser_FindInterfaces_OK(t *testing.T) {
 	tests := []struct {
 		name     string
 		code     []byte
-		expected []*Interface
+		expected []*mocksie.Interface
 	}{
 		{
 			name: "multiple-methods",
@@ -23,26 +24,26 @@ func Test_FileParser_FindInterfaces_OK(t *testing.T) {
 					SayGoodbye(name string) (string, error)
 				}
 			`),
-			expected: []*Interface{
+			expected: []*mocksie.Interface{
 				{
 					Name: "greeter",
-					Methods: []Method{
+					Methods: []mocksie.Method{
 						{
 							Name: "SayHello",
-							Params: []Param{
+							Params: []mocksie.Param{
 								{Name: "name", Type: "string"},
 							},
-							Results: []Result{
+							Results: []mocksie.Result{
 								{Name: "", Type: "string"},
 								{Name: "", Type: "error"},
 							},
 						},
 						{
 							Name: "SayGoodbye",
-							Params: []Param{
+							Params: []mocksie.Param{
 								{Name: "name", Type: "string"},
 							},
-							Results: []Result{
+							Results: []mocksie.Result{
 								{Name: "", Type: "string"},
 								{Name: "", Type: "error"},
 							},
@@ -62,14 +63,14 @@ func Test_FileParser_FindInterfaces_OK(t *testing.T) {
 					DoThatThing() (string, error)
 				}
 			`),
-			expected: []*Interface{
+			expected: []*mocksie.Interface{
 				{
 					Name: "thisOne",
-					Methods: []Method{
+					Methods: []mocksie.Method{
 						{
 							Name:   "DoThisThing",
-							Params: []Param{},
-							Results: []Result{
+							Params: []mocksie.Param{},
+							Results: []mocksie.Result{
 								{Name: "", Type: "string"},
 								{Name: "", Type: "error"},
 							},
@@ -78,11 +79,11 @@ func Test_FileParser_FindInterfaces_OK(t *testing.T) {
 				},
 				{
 					Name: "thatOne",
-					Methods: []Method{
+					Methods: []mocksie.Method{
 						{
 							Name:   "DoThatThing",
-							Params: []Param{},
-							Results: []Result{
+							Params: []mocksie.Param{},
+							Results: []mocksie.Result{
 								{Name: "", Type: "string"},
 								{Name: "", Type: "error"},
 							},
@@ -97,7 +98,7 @@ func Test_FileParser_FindInterfaces_OK(t *testing.T) {
 				package main
 				// No interfaces defined here
 			`),
-			expected: []*Interface{},
+			expected: []*mocksie.Interface{},
 		},
 		{
 			name: "named-results",
@@ -107,16 +108,16 @@ func Test_FileParser_FindInterfaces_OK(t *testing.T) {
 					SayHello(name string) (greeting string, err error)
 				}
 			`),
-			expected: []*Interface{
+			expected: []*mocksie.Interface{
 				{
 					Name: "greeter",
-					Methods: []Method{
+					Methods: []mocksie.Method{
 						{
 							Name: "SayHello",
-							Params: []Param{
+							Params: []mocksie.Param{
 								{Name: "name", Type: "string"},
 							},
-							Results: []Result{
+							Results: []mocksie.Result{
 								{Name: "greeting", Type: "string"},
 								{Name: "err", Type: "error"},
 							},
@@ -133,16 +134,16 @@ func Test_FileParser_FindInterfaces_OK(t *testing.T) {
 					SayHello(string) (string, error)
 				}
 			`),
-			expected: []*Interface{
+			expected: []*mocksie.Interface{
 				{
 					Name: "greeter",
-					Methods: []Method{
+					Methods: []mocksie.Method{
 						{
 							Name: "SayHello",
-							Params: []Param{
+							Params: []mocksie.Param{
 								{Name: "", Type: "string"},
 							},
-							Results: []Result{
+							Results: []mocksie.Result{
 								{Name: "", Type: "string"},
 								{Name: "", Type: "error"},
 							},
