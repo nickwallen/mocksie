@@ -4,8 +4,10 @@ import (
 	"go/ast"
 	"go/parser"
 	"go/token"
+	"log"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/nickwallen/mocksie/internal"
 )
@@ -55,15 +57,31 @@ func (p *Parser) FindInterfaces() ([]*mocksie.Interface, error) {
 			if _, ok := spec.(*ast.TypeSpec).Type.(*ast.InterfaceType); !ok {
 				continue // Not an interface
 			}
+			// Found an interface
 			typ := spec.(*ast.TypeSpec)
 			ifaces = append(ifaces, &mocksie.Interface{
 				Name:    typ.Name.String(),
-				Package: f.Name.Name,
+				Package: buildPackage(f),
+				Imports: buildImports(f),
 				Methods: buildMethods(typ.Type.(*ast.InterfaceType)),
 			})
 		}
 	}
 	return ifaces, nil
+}
+
+func buildPackage(f *ast.File) mocksie.Package {
+	return mocksie.Package(f.Name.Name)
+}
+
+func buildImports(f *ast.File) []mocksie.Import {
+	imports := make([]mocksie.Import, 0)
+	for _, impSpec := range f.Imports {
+		imports = append(imports, mocksie.Import{
+			Path: strings.ReplaceAll(impSpec.Path.Value, "\"", ""),
+		})
+	}
+	return imports
 }
 
 func buildMethods(typ *ast.InterfaceType) []mocksie.Method {
@@ -117,25 +135,37 @@ func buildResults(funcType *ast.FuncType) []mocksie.Result {
 
 func buildParams(funcType *ast.FuncType) []mocksie.Param {
 	params := make([]mocksie.Param, 0)
-	for i := range funcType.Params.List {
-		field := funcType.Params.List[i]
-
-		// Expect the field to be an identifier
-		if _, ok := field.Type.(*ast.Ident); !ok {
-			continue
-		}
-
+	for _, field := range funcType.Params.List {
 		// The param may not be named
 		name := ""
 		if len(field.Names) > 0 {
 			name = field.Names[0].Name
 		}
 
-		// Build the param
-		params = append(params, mocksie.Param{
-			Name: name,
-			Type: field.Type.(*ast.Ident).Name,
-		})
+		switch typ := field.Type.(type) {
+		case *ast.Ident:
+			// Build the param
+			params = append(params, mocksie.Param{
+				Name: name,
+				Type: typ.Name,
+			})
+
+		case *ast.SelectorExpr:
+			i, ok := typ.X.(*ast.Ident)
+			if !ok {
+				// TODO fix me
+				log.Fatalf("expected *ast.Ident, but got something else.")
+			}
+			// Build the param
+			params = append(params, mocksie.Param{
+				Name: name,
+				Type: i.Name + "." + typ.Sel.Name,
+			})
+
+		default:
+			// Not supported
+			continue
+		}
 	}
 	return params
 }

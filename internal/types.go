@@ -3,9 +3,18 @@ package mocksie
 // Interface is an interface that will need to be mocked.
 type Interface struct {
 	Name    string
-	Package string
+	Package Package
+	Imports []Import
 	Methods []Method
 }
+
+// Import is an imported package.
+type Import struct {
+	Path string
+}
+
+// Package is the package in which an Interface is defined.
+type Package string
 
 // Method is a method that is part of an Interface. There are one or more methods
 // within an Interface.

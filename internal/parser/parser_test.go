@@ -1,6 +1,8 @@
 package parser
 
 import (
+	"go/parser"
+	"go/token"
 	"io/ioutil"
 	"os"
 	"testing"
@@ -28,6 +30,7 @@ func Test_FileParser_FindInterfaces_OK(t *testing.T) {
 				{
 					Name:    "greeter",
 					Package: "main",
+					Imports: []mocksie.Import{},
 					Methods: []mocksie.Method{
 						{
 							Name: "SayHello",
@@ -64,6 +67,7 @@ func Test_FileParser_FindInterfaces_OK(t *testing.T) {
 				{
 					Name:    "greeter",
 					Package: "main",
+					Imports: []mocksie.Import{},
 					Methods: []mocksie.Method{},
 				},
 			},
@@ -83,6 +87,7 @@ func Test_FileParser_FindInterfaces_OK(t *testing.T) {
 				{
 					Name:    "thisOne",
 					Package: "main",
+					Imports: []mocksie.Import{},
 					Methods: []mocksie.Method{
 						{
 							Name:   "DoThisThing",
@@ -97,6 +102,7 @@ func Test_FileParser_FindInterfaces_OK(t *testing.T) {
 				{
 					Name:    "thatOne",
 					Package: "main",
+					Imports: []mocksie.Import{},
 					Methods: []mocksie.Method{
 						{
 							Name:   "DoThatThing",
@@ -130,6 +136,7 @@ func Test_FileParser_FindInterfaces_OK(t *testing.T) {
 				{
 					Name:    "greeter",
 					Package: "main",
+					Imports: []mocksie.Import{},
 					Methods: []mocksie.Method{
 						{
 							Name: "SayHello",
@@ -157,6 +164,7 @@ func Test_FileParser_FindInterfaces_OK(t *testing.T) {
 				{
 					Name:    "greeter",
 					Package: "main",
+					Imports: []mocksie.Import{},
 					Methods: []mocksie.Method{
 						{
 							Name: "SayHello",
@@ -165,6 +173,37 @@ func Test_FileParser_FindInterfaces_OK(t *testing.T) {
 							},
 							Results: []mocksie.Result{
 								{Name: "", Type: "string"},
+								{Name: "", Type: "error"},
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "imports",
+			code: []byte(`
+				package main
+				import "io"
+				type greeter interface {
+					SayHello(in io.Reader, out io.Writer) error
+				}
+			`),
+			expected: []*mocksie.Interface{
+				{
+					Name:    "greeter",
+					Package: "main",
+					Imports: []mocksie.Import{
+						{Path: "io"},
+					},
+					Methods: []mocksie.Method{
+						{
+							Name: "SayHello",
+							Params: []mocksie.Param{
+								{Name: "in", Type: "io.Reader"},
+								{Name: "out", Type: "io.Writer"},
+							},
+							Results: []mocksie.Result{
 								{Name: "", Type: "error"},
 							},
 						},
@@ -183,6 +222,10 @@ func Test_FileParser_FindInterfaces_OK(t *testing.T) {
 		t.Run(test.name, func(t *testing.T) {
 			// Write the source code to the file
 			err = ioutil.WriteFile(file.Name(), test.code, 0700)
+			require.NoError(t, err)
+
+			// Ensure the test code is valid
+			_, err = parser.ParseFile(token.NewFileSet(), "", test.code, parser.AllErrors)
 			require.NoError(t, err)
 
 			// Create the file parser

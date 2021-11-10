@@ -1,9 +1,12 @@
 package testdata
 
-import "fmt"
+import (
+	"fmt"
+	"io"
+)
 
 type greeter interface {
-	SayHello(name string) (string, error)
+	SayHello(name string, out io.Writer) (string, error)
 	SayGoodbye(name string) (string, error)
 }
 
