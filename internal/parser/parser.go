@@ -110,6 +110,9 @@ func buildMethods(typ *ast.InterfaceType) []mocksie.Method {
 
 func buildResults(funcType *ast.FuncType) []mocksie.Result {
 	results := make([]mocksie.Result, 0)
+	if funcType.Results == nil {
+		return results // No function results
+	}
 	for i := range funcType.Results.List {
 		field := funcType.Results.List[i]
 

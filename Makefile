@@ -1,9 +1,9 @@
-all: lint test
+all: test
 
 lint:
 	golangci-lint run ./...
 
-test:
+test: lint
 	go test ./...
 
 install:

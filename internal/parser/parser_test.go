@@ -153,6 +153,37 @@ func Test_FileParser_FindInterfaces_OK(t *testing.T) {
 			},
 		},
 		{
+			name: "results-none",
+			code: []byte(`
+				package main
+				import (
+					"io"
+				)
+				type greeter interface {
+					SayHello(name string, out io.Writer)
+				}
+			`),
+			expected: []*mocksie.Interface{
+				{
+					Name:    "greeter",
+					Package: "main",
+					Imports: []mocksie.Import{
+						{Path: "io"},
+					},
+					Methods: []mocksie.Method{
+						{
+							Name: "SayHello",
+							Params: []mocksie.Param{
+								{Name: "name", Type: "string"},
+								{Name: "out", Type: "io.Writer"},
+							},
+							Results: []mocksie.Result{},
+						},
+					},
+				},
+			},
+		},
+		{
 			name: "params-unnamed",
 			code: []byte(`
 				package main
