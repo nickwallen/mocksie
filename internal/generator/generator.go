@@ -31,6 +31,7 @@ func (g *Generator) GenerateMock(iface *mocksie.Interface) error {
 func initTemplates() *template.Template {
 	tmpl := template.New("").Funcs(sprig.FuncMap())
 	tmpl = template.Must(tmpl.New("base").Parse(baseTemplate))
+	tmpl = template.Must(tmpl.New("imports").Parse(importsTemplate))
 	tmpl = template.Must(tmpl.New("methods").Parse(methodsTemplate))
 	tmpl = template.Must(tmpl.New("declare-params").Parse(declareParamsTemplate))
 	tmpl = template.Must(tmpl.New("use-params").Parse(useParamsTemplate))

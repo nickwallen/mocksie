@@ -17,6 +17,43 @@ func Test_Generator_GenerateMock_OK(t *testing.T) {
 		expected string
 	}{
 		{
+			name: "basic-greeter",
+			iface: &mocksie.Interface{
+				Name:    "greeter",
+				Package: "testdata",
+				Imports: []mocksie.Import{},
+				Methods: []mocksie.Method{
+					{
+						Name: "SayHello",
+						Params: []mocksie.Param{
+							{Name: "name", Type: "string"},
+						},
+						Results: []mocksie.Result{
+							{Name: "", Type: "string"},
+							{Name: "", Type: "error"},
+						},
+					},
+				},
+			},
+			expected: `
+package testdata
+
+
+
+// mockGreeter ia a mock implementation of the Greeter interface.
+type mockGreeter struct {
+    DoSayHello func (name string) (string, error)
+}
+
+// SayHello relies on DoSayHello for defining it's behavior. If this is causing a panic,
+// define DoSayHello within your test case.
+func (m *mockGreeter) SayHello(name string) (string, error) {
+    return m.DoSayHello(name)
+}
+
+`,
+		},
+		{
 			name: "methods-multiple",
 			iface: &mocksie.Interface{
 				Name:    "greeter",
@@ -46,6 +83,8 @@ func Test_Generator_GenerateMock_OK(t *testing.T) {
 			},
 			expected: `
 package main
+
+
 
 // mockGreeter ia a mock implementation of the Greeter interface.
 type mockGreeter struct {
@@ -87,6 +126,8 @@ func (m *mockGreeter) SayGoodbye(name string) (string, error) {
 			expected: `
 package main
 
+
+
 // mockGreeter ia a mock implementation of the Greeter interface.
 type mockGreeter struct {
     DoSayHello func (name string) string
@@ -117,6 +158,8 @@ func (m *mockGreeter) SayHello(name string) string {
 			},
 			expected: `
 package main
+
+
 
 // mockGreeter ia a mock implementation of the Greeter interface.
 type mockGreeter struct {
@@ -151,6 +194,8 @@ func (m *mockGreeter) SayHello(name string)  {
 			},
 			expected: `
 package main
+
+
 
 // mockGreeter ia a mock implementation of the Greeter interface.
 type mockGreeter struct {
@@ -187,6 +232,8 @@ func (m *mockGreeter) SayHello(name string) (greeting string, err error) {
 			expected: `
 package main
 
+
+
 // mockGreeter ia a mock implementation of the Greeter interface.
 type mockGreeter struct {
     DoSayHello func (first string, last string) (string, error)
@@ -219,6 +266,8 @@ func (m *mockGreeter) SayHello(first string, last string) (string, error) {
 			expected: `
 package main
 
+
+
 // mockGreeter ia a mock implementation of the Greeter interface.
 type mockGreeter struct {
     DoSayHello func () (string, error)
@@ -250,6 +299,8 @@ func (m *mockGreeter) SayHello() (string, error) {
 			expected: `
 package main
 
+
+
 // mockGreeter ia a mock implementation of the Greeter interface.
 type mockGreeter struct {
     DoSayHello func (name string) 
@@ -259,6 +310,47 @@ type mockGreeter struct {
 // define DoSayHello within your test case.
 func (m *mockGreeter) SayHello(name string)  {
     m.DoSayHello(name)
+}
+
+`,
+		},
+		{
+			name: "imports",
+			iface: &mocksie.Interface{
+				Name:    "greeter",
+				Package: "testdata",
+				Imports: []mocksie.Import{
+					{Path: "io"},
+				},
+				Methods: []mocksie.Method{
+					{
+						Name: "SayHello",
+						Params: []mocksie.Param{
+							{Name: "in", Type: "io.Reader"},
+							{Name: "out", Type: "io.Writer"},
+						},
+						Results: []mocksie.Result{
+							{Name: "", Type: "error"},
+						},
+					},
+				},
+			},
+			expected: `
+package testdata
+
+import (
+    "io"
+)
+
+// mockGreeter ia a mock implementation of the Greeter interface.
+type mockGreeter struct {
+    DoSayHello func (in io.Reader, out io.Writer) error
+}
+
+// SayHello relies on DoSayHello for defining it's behavior. If this is causing a panic,
+// define DoSayHello within your test case.
+func (m *mockGreeter) SayHello(in io.Reader, out io.Writer) error {
+    return m.DoSayHello(in, out)
 }
 
 `,

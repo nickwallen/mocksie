@@ -57,7 +57,6 @@ func NewGenerateCmd() *cobra.Command {
 					return err
 				}
 			}
-
 			return nil // Success
 		},
 	}

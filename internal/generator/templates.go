@@ -5,6 +5,8 @@ const (
 	baseTemplate = `
 package {{ .Package }}
 
+{{ template "imports" . }}
+
 // mock{{ .Name | title }} ia a mock implementation of the Greeter interface.
 type mock{{ .Name | title }} struct {
 {{- range  .Methods }}
@@ -12,6 +14,16 @@ type mock{{ .Name | title }} struct {
 {{- end }}
 }
 {{ template "methods" . -}}
+`
+	// importsTemplate defines how the imports are generated.
+	importsTemplate = `
+{{- if gt (len .Imports) 0 -}}
+import (
+{{- range  .Imports }}
+    "{{ .Path }}"
+{{- end }}
+)
+{{- end -}}
 `
 
 	// methodsTemplate defines how the methods of the mock implementation are generated.

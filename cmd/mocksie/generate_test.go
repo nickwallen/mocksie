@@ -15,24 +15,31 @@ func Test_GenerateCmd_OK(t *testing.T) {
 	err := cmd.Execute()
 	require.NoError(t, err)
 	expected := `
-package testdata
+package main
+
+import (
+    "bufio"
+    "fmt"
+    "io"
+    "os"
+)
 
 // mockGreeter ia a mock implementation of the Greeter interface.
 type mockGreeter struct {
-    DoSayHello func (in io.Writer, out io.Writer) (string, error)
-    DoSayGoodbye func (name string) (string, error)
+    DoSayHello func (in io.Reader, out io.Writer) error
+    DoSayGoodbye func (in io.Reader, out io.Writer) error
 }
 
 // SayHello relies on DoSayHello for defining it's behavior. If this is causing a panic,
 // define DoSayHello within your test case.
-func (m *mockGreeter) SayHello(in io.Writer, out io.Writer) (string, error) {
+func (m *mockGreeter) SayHello(in io.Reader, out io.Writer) error {
     return m.DoSayHello(in, out)
 }
 
 // SayGoodbye relies on DoSayGoodbye for defining it's behavior. If this is causing a panic,
 // define DoSayGoodbye within your test case.
-func (m *mockGreeter) SayGoodbye(name string) (string, error) {
-    return m.DoSayGoodbye(name)
+func (m *mockGreeter) SayGoodbye(in io.Reader, out io.Writer) error {
+    return m.DoSayGoodbye(in, out)
 }
 
 `
