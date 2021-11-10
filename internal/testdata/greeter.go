@@ -6,7 +6,7 @@ import (
 )
 
 type greeter interface {
-	SayHello(name string, out io.Writer) (string, error)
+	SayHello(in io.Writer, out io.Writer) (string, error)
 	SayGoodbye(name string) (string, error)
 }
 
