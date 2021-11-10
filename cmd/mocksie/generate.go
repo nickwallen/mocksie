@@ -1,4 +1,4 @@
-package mocksie
+package main
 
 import (
 	"fmt"
@@ -13,10 +13,6 @@ import (
 var generateArgs = struct {
 	filename string
 }{}
-
-func init() {
-	rootCmd.AddCommand(NewGenerateCmd())
-}
 
 // NewGenerateCmd a command that generates mock implementations of an interface.
 func NewGenerateCmd() *cobra.Command {

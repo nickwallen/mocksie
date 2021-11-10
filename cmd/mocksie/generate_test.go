@@ -1,4 +1,4 @@
-package mocksie
+package main
 
 import (
 	"bytes"
