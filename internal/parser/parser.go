@@ -18,19 +18,19 @@ type Parser struct {
 }
 
 // New constructs a new Parser.
-func New(filename string) (*Parser, error) {
-	// Find the absolute path to the file
-	filename, err := filepath.Abs(filename)
+func New(inFile string) (*Parser, error) {
+	// Find the absolute path to the input file
+	inFile, err := filepath.Abs(inFile)
 	if err != nil {
 		return nil, err
 	}
 
 	// Ensure the file exists
-	if _, err := os.Stat(filename); err != nil {
+	if _, err := os.Stat(inFile); err != nil {
 		return nil, err
 	}
 
-	return &Parser{filename: filename}, nil
+	return &Parser{filename: inFile}, nil
 }
 
 // FindInterfaces returns all interfaces defined in the file.
