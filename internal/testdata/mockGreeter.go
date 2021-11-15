@@ -4,7 +4,7 @@ import (
 	"io"
 )
 
-// mockGreeter ia a mock implementation of the Greeter interface.
+// mockGreeter ia a mock implementation of the greeter interface.
 type mockGreeter struct {
 	DoSayHello   func(in io.Reader, out io.Writer) error
 	DoSayGoodbye func(in io.Reader, out io.Writer) error

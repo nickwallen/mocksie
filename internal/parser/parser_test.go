@@ -13,12 +13,14 @@ import (
 
 func Test_FileParser_FindInterfaces_OK(t *testing.T) {
 	tests := []struct {
-		name     string
+		testCase string
 		code     []byte
-		expected []*mocksie.Interface
+		name     string
+		expected *mocksie.Interface
+		err      error
 	}{
 		{
-			name: "methods-many",
+			testCase: "methods-many",
 			code: []byte(`
 				package main
 				type greeter interface {
@@ -26,134 +28,98 @@ func Test_FileParser_FindInterfaces_OK(t *testing.T) {
 					SayGoodbye(name string) (string, error)
 				}
 			`),
-			expected: []*mocksie.Interface{
-				{
-					Name:    "greeter",
-					Package: "main",
-					Imports: []mocksie.Import{},
-					Methods: []mocksie.Method{
-						{
-							Name: "SayHello",
-							Params: []mocksie.Param{
-								{Name: "name", Type: "string"},
-							},
-							Results: []mocksie.Result{
-								{Name: "", Type: "string"},
-								{Name: "", Type: "error"},
-							},
+			name: "greeter",
+			expected: &mocksie.Interface{
+				Name:    "greeter",
+				Package: "main",
+				Imports: []mocksie.Import{},
+				Methods: []mocksie.Method{
+					{
+						Name: "SayHello",
+						Params: []mocksie.Param{
+							{Name: "name", Type: "string"},
 						},
-						{
-							Name: "SayGoodbye",
-							Params: []mocksie.Param{
-								{Name: "name", Type: "string"},
-							},
-							Results: []mocksie.Result{
-								{Name: "", Type: "string"},
-								{Name: "", Type: "error"},
-							},
+						Results: []mocksie.Result{
+							{Name: "", Type: "string"},
+							{Name: "", Type: "error"},
+						},
+					},
+					{
+						Name: "SayGoodbye",
+						Params: []mocksie.Param{
+							{Name: "name", Type: "string"},
+						},
+						Results: []mocksie.Result{
+							{Name: "", Type: "string"},
+							{Name: "", Type: "error"},
 						},
 					},
 				},
 			},
 		},
 		{
-			name: "methods-none",
+			testCase: "methods-none",
 			code: []byte(`
 				package main
 				type greeter interface {
 				}
 			`),
-			expected: []*mocksie.Interface{
-				{
-					Name:    "greeter",
-					Package: "main",
-					Imports: []mocksie.Import{},
-					Methods: []mocksie.Method{},
-				},
+			name: "greeter",
+			expected: &mocksie.Interface{
+				Name:    "greeter",
+				Package: "main",
+				Imports: []mocksie.Import{},
+				Methods: []mocksie.Method{},
 			},
 		},
 		{
-			name: "interfaces-many",
-			code: []byte(`
-				package main
-				type thisOne interface {
-					DoThisThing() (string, error)
-				}
-				type thatOne interface {
-					DoThatThing() (string, error)
-				}
-			`),
-			expected: []*mocksie.Interface{
-				{
-					Name:    "thisOne",
-					Package: "main",
-					Imports: []mocksie.Import{},
-					Methods: []mocksie.Method{
-						{
-							Name:   "DoThisThing",
-							Params: []mocksie.Param{},
-							Results: []mocksie.Result{
-								{Name: "", Type: "string"},
-								{Name: "", Type: "error"},
-							},
-						},
-					},
-				},
-				{
-					Name:    "thatOne",
-					Package: "main",
-					Imports: []mocksie.Import{},
-					Methods: []mocksie.Method{
-						{
-							Name:   "DoThatThing",
-							Params: []mocksie.Param{},
-							Results: []mocksie.Result{
-								{Name: "", Type: "string"},
-								{Name: "", Type: "error"},
-							},
-						},
-					},
-				},
-			},
-		},
-		{
-			name: "interfaces-none",
+			testCase: "interface-not-defined",
 			code: []byte(`
 				package main
 				// No interfaces defined here
 			`),
-			expected: []*mocksie.Interface{},
+			name: "greeter",
+			err:  errNotFound,
 		},
 		{
-			name: "results-named",
+			testCase: "interface-not-found",
+			code: []byte(`
+				package main
+				type greeter interface {
+				}
+			`),
+			name: "doesNotExist",
+			err:  errNotFound,
+		},
+		{
+			testCase: "results-named",
 			code: []byte(`
 				package main
 				type greeter interface {
 					SayHello(name string) (greeting string, err error)
 				}
 			`),
-			expected: []*mocksie.Interface{
-				{
-					Name:    "greeter",
-					Package: "main",
-					Imports: []mocksie.Import{},
-					Methods: []mocksie.Method{
-						{
-							Name: "SayHello",
-							Params: []mocksie.Param{
-								{Name: "name", Type: "string"},
-							},
-							Results: []mocksie.Result{
-								{Name: "greeting", Type: "string"},
-								{Name: "err", Type: "error"},
-							},
+			name: "greeter",
+			expected: &mocksie.Interface{
+				Name:    "greeter",
+				Package: "main",
+				Imports: []mocksie.Import{},
+				Methods: []mocksie.Method{
+					{
+						Name: "SayHello",
+						Params: []mocksie.Param{
+							{Name: "name", Type: "string"},
+						},
+						Results: []mocksie.Result{
+							{Name: "greeting", Type: "string"},
+							{Name: "err", Type: "error"},
 						},
 					},
 				},
 			},
 		},
 		{
-			name: "results-none",
+			testCase: "results-none",
 			code: []byte(`
 				package main
 				import (
@@ -163,56 +129,54 @@ func Test_FileParser_FindInterfaces_OK(t *testing.T) {
 					SayHello(name string, out io.Writer)
 				}
 			`),
-			expected: []*mocksie.Interface{
-				{
-					Name:    "greeter",
-					Package: "main",
-					Imports: []mocksie.Import{
-						{Path: "io"},
-					},
-					Methods: []mocksie.Method{
-						{
-							Name: "SayHello",
-							Params: []mocksie.Param{
-								{Name: "name", Type: "string"},
-								{Name: "out", Type: "io.Writer"},
-							},
-							Results: []mocksie.Result{},
+			name: "greeter",
+			expected: &mocksie.Interface{
+				Name:    "greeter",
+				Package: "main",
+				Imports: []mocksie.Import{
+					{Path: "io"},
+				},
+				Methods: []mocksie.Method{
+					{
+						Name: "SayHello",
+						Params: []mocksie.Param{
+							{Name: "name", Type: "string"},
+							{Name: "out", Type: "io.Writer"},
 						},
+						Results: []mocksie.Result{},
 					},
 				},
 			},
 		},
 		{
-			name: "params-unnamed",
+			testCase: "params-unnamed",
 			code: []byte(`
 				package main
 				type greeter interface {
 					SayHello(string) (string, error)
 				}
 			`),
-			expected: []*mocksie.Interface{
-				{
-					Name:    "greeter",
-					Package: "main",
-					Imports: []mocksie.Import{},
-					Methods: []mocksie.Method{
-						{
-							Name: "SayHello",
-							Params: []mocksie.Param{
-								{Name: "", Type: "string"},
-							},
-							Results: []mocksie.Result{
-								{Name: "", Type: "string"},
-								{Name: "", Type: "error"},
-							},
+			name: "greeter",
+			expected: &mocksie.Interface{
+				Name:    "greeter",
+				Package: "main",
+				Imports: []mocksie.Import{},
+				Methods: []mocksie.Method{
+					{
+						Name: "SayHello",
+						Params: []mocksie.Param{
+							{Name: "", Type: "string"},
+						},
+						Results: []mocksie.Result{
+							{Name: "", Type: "string"},
+							{Name: "", Type: "error"},
 						},
 					},
 				},
 			},
 		},
 		{
-			name: "imports",
+			testCase: "imports",
 			code: []byte(`
 				package main
 				import "io"
@@ -220,23 +184,22 @@ func Test_FileParser_FindInterfaces_OK(t *testing.T) {
 					SayHello(in io.Reader, out io.Writer) error
 				}
 			`),
-			expected: []*mocksie.Interface{
-				{
-					Name:    "greeter",
-					Package: "main",
-					Imports: []mocksie.Import{
-						{Path: "io"},
-					},
-					Methods: []mocksie.Method{
-						{
-							Name: "SayHello",
-							Params: []mocksie.Param{
-								{Name: "in", Type: "io.Reader"},
-								{Name: "out", Type: "io.Writer"},
-							},
-							Results: []mocksie.Result{
-								{Name: "", Type: "error"},
-							},
+			name: "greeter",
+			expected: &mocksie.Interface{
+				Name:    "greeter",
+				Package: "main",
+				Imports: []mocksie.Import{
+					{Path: "io"},
+				},
+				Methods: []mocksie.Method{
+					{
+						Name: "SayHello",
+						Params: []mocksie.Param{
+							{Name: "in", Type: "io.Reader"},
+							{Name: "out", Type: "io.Writer"},
+						},
+						Results: []mocksie.Result{
+							{Name: "", Type: "error"},
 						},
 					},
 				},
@@ -250,7 +213,7 @@ func Test_FileParser_FindInterfaces_OK(t *testing.T) {
 	defer os.Remove(file.Name())
 
 	for _, test := range tests {
-		t.Run(test.name, func(t *testing.T) {
+		t.Run(test.testCase, func(t *testing.T) {
 			// Write the source code to the file
 			err = ioutil.WriteFile(file.Name(), test.code, 0700)
 			require.NoError(t, err)
@@ -260,13 +223,15 @@ func Test_FileParser_FindInterfaces_OK(t *testing.T) {
 			require.NoError(t, err)
 
 			// Create the file parser
-			parser, err := New(file.Name())
+			p, err := New(file.Name())
 			require.NoError(t, err)
 
 			// Find all interfaces
-			found, err := parser.FindInterfaces()
-			require.NoError(t, err)
-			require.Equal(t, test.expected, found)
+			found, err := p.FindInterface(test.name)
+			if test.expected != nil {
+				require.Equal(t, test.expected, found)
+			}
+			require.Equal(t, test.err, err)
 		})
 	}
 }

@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"os"
 
@@ -11,8 +10,9 @@ import (
 )
 
 var generateArgs = struct {
-	inFile  string
-	outFile string
+	inFile  string // Input file containing the interface definition.
+	outFile string // Output file to write the generated mock to.
+	name    string // Name of the interface to generate a mock for.
 }{}
 
 // NewGenerateCmd a command that generates mock implementations of an interface.
@@ -33,22 +33,14 @@ prevents you from having to maintain boilerplate code, and
 			out := cmd.OutOrStdout()
 			log.SetOutput(out)
 
-			// Which file to parse?
-			if len(generateArgs.inFile) == 0 {
-				return fmt.Errorf("no input defined")
-			}
-
-			// Find all interfaces
+			// Find the interface definition
 			p, err := parser.New(generateArgs.inFile)
 			if err != nil {
 				return err
 			}
-			ifaces, err := p.FindInterfaces()
+			found, err := p.FindInterface(generateArgs.name)
 			if err != nil {
 				return err
-			}
-			if len(ifaces) == 0 {
-				return nil // No interfaces found. Nothing to do.
 			}
 
 			// Open the output file or use stdout if not output file defined
@@ -61,26 +53,21 @@ prevents you from having to maintain boilerplate code, and
 				out = outFile
 			}
 
-			// Generate a mock for each interface found
+			// Generate the mock
 			gen, err := generator.New(out)
 			if err != nil {
 				return err
 			}
-
-			for _, iface := range ifaces {
-				err := gen.GenerateMock(iface)
-				if err != nil {
-					return err
-				}
-			}
-			return nil // Success
+			return gen.GenerateMock(found)
 		},
 	}
 
 	// Define the accepted flags
-	cmd.PersistentFlags().StringVarP(&generateArgs.inFile, "in", "i", "",
-		"The input file containing the interface definition.")
-	cmd.PersistentFlags().StringVarP(&generateArgs.outFile, "out", "o", "",
-		"The output file to write the generated mocks to.")
+	cmd.Flags().StringVarP(&generateArgs.inFile, "in", "i", "", "The input file containing the interface definition.")
+	cmd.Flags().StringVarP(&generateArgs.outFile, "out", "o", "", "The output file to write the generated mocks to.")
+	cmd.Flags().StringVarP(&generateArgs.name, "name", "n", "", "The name of the interface to generate a mock for.")
+	err := cmd.MarkFlagRequired("name")
+	cobra.CheckErr(err)
+
 	return cmd
 }

@@ -8,7 +8,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func Test_GenerateCmd_OneInterface(t *testing.T) {
+func Test_GenerateCmd_OK(t *testing.T) {
 	var out bytes.Buffer
 
 	// Read the expected mock output
@@ -18,23 +18,46 @@ func Test_GenerateCmd_OneInterface(t *testing.T) {
 	// Run the command
 	cmd := NewGenerateCmd()
 	cmd.SetOut(&out)
-	cmd.SetArgs([]string{"--in", "../../internal/testdata/greeter.go"})
+	cmd.SetArgs([]string{
+		"--name", "greeter",
+		"--in", "../../internal/testdata/greeter.go",
+	})
 	err = cmd.Execute()
 	require.NoError(t, err)
 	require.Equal(t, string(expectedMock), out.String())
 }
 
-func Test_GenerateCmd_TwoInterfaces(t *testing.T) {
-	t.SkipNow() // Skip until we deal with multiple interfaces
+func Test_GenerateCmd_InterfaceNotFound(t *testing.T) {
+	var out bytes.Buffer
+
+	// Run the command
+	cmd := NewGenerateCmd()
+	cmd.SetOut(&out)
+	cmd.SetArgs([]string{
+		"--name", "doesNotExist", // An interface by this name does not exist
+		"--in", "../../internal/testdata/greeter.go",
+	})
+	err := cmd.Execute()
+	require.Error(t, err)
+}
+
+func Test_GenerateCmd_ChooseOneInterface(t *testing.T) {
 	var out bytes.Buffer
 
 	// Read the expected mock output
-	expectedMock, err := ioutil.ReadFile("../../internal/testdata/mockGreeter.go")
+	expectedMock, err := ioutil.ReadFile("../../internal/testdata/mockHelloGreeter.go")
 	require.NoError(t, err)
 
+	// The input file has multiple interfaces defined
 	cmd := NewGenerateCmd()
 	cmd.SetOut(&out)
-	cmd.SetArgs([]string{"--in", "../../internal/testdata/greeters.go"})
+	cmd.SetArgs([]string{
+		"--name", "helloGreeter",
+		"--in", "../../internal/testdata/greeters.go",
+	})
+
+	// If there is more than one interface found, the user must choose
+	// which interface to generate a mock for using the --name flag.
 	err = cmd.Execute()
 	require.NoError(t, err)
 	require.Equal(t, string(expectedMock), out.String())
@@ -53,6 +76,7 @@ func Test_GenerateCmd_OutFile(t *testing.T) {
 	// Generate a mock
 	cmd := NewGenerateCmd()
 	cmd.SetArgs([]string{
+		"--name", "greeter",
 		"--in", "../../internal/testdata/greeter.go",
 		"--out", outFile.Name(),
 	})
@@ -63,10 +87,4 @@ func Test_GenerateCmd_OutFile(t *testing.T) {
 	generatedMock, err := ioutil.ReadFile(outFile.Name())
 	require.NoError(t, err)
 	require.Equal(t, string(expectedMock), string(generatedMock))
-}
-
-func Test_GenerateCmd_NoArgs(t *testing.T) {
-	cmd := NewGenerateCmd()
-	err := cmd.Execute()
-	require.Error(t, err, "Passing no flags is an error.")
 }

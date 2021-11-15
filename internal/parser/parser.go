@@ -1,6 +1,7 @@
 package parser
 
 import (
+	"errors"
 	"go/ast"
 	"go/parser"
 	"go/token"
@@ -10,6 +11,10 @@ import (
 	"strings"
 
 	"github.com/nickwallen/mocksie/internal"
+)
+
+var (
+	errNotFound = errors.New("interface not found")
 )
 
 // Parser parses a file containing Go source code.
@@ -33,8 +38,8 @@ func New(inFile string) (*Parser, error) {
 	return &Parser{filename: inFile}, nil
 }
 
-// FindInterfaces returns all interfaces defined in the file.
-func (p *Parser) FindInterfaces() ([]*mocksie.Interface, error) {
+// FindInterface returns the interface with the given name.
+func (p *Parser) FindInterface(name string) (*mocksie.Interface, error) {
 	// Parse the file
 	f, err := parser.ParseFile(token.NewFileSet(), p.filename, nil, parser.AllErrors)
 	if err != nil {
@@ -42,7 +47,6 @@ func (p *Parser) FindInterfaces() ([]*mocksie.Interface, error) {
 	}
 
 	// Find any interfaces
-	ifaces := make([]*mocksie.Interface, 0)
 	for _, decl := range f.Decls {
 		if _, ok := decl.(*ast.GenDecl); !ok {
 			continue // Not a declaration
@@ -57,17 +61,19 @@ func (p *Parser) FindInterfaces() ([]*mocksie.Interface, error) {
 			if _, ok := spec.(*ast.TypeSpec).Type.(*ast.InterfaceType); !ok {
 				continue // Not an interface
 			}
-			// Found an interface
 			typ := spec.(*ast.TypeSpec)
-			ifaces = append(ifaces, &mocksie.Interface{
-				Name:    typ.Name.String(),
-				Package: buildPackage(f),
-				Imports: buildImports(f),
-				Methods: buildMethods(typ.Type.(*ast.InterfaceType)),
-			})
+			if name == typ.Name.String() {
+				// Found the interface
+				return &mocksie.Interface{
+					Name:    typ.Name.String(),
+					Package: buildPackage(f),
+					Imports: buildImports(f),
+					Methods: buildMethods(typ.Type.(*ast.InterfaceType)),
+				}, nil
+			}
 		}
 	}
-	return ifaces, nil
+	return nil, errNotFound
 }
 
 func buildPackage(f *ast.File) mocksie.Package {

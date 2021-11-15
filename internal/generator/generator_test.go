@@ -39,7 +39,7 @@ func Test_Generator_GenerateMock_OK(t *testing.T) {
 			expected: `
 package testdata
 
-// mockGreeter ia a mock implementation of the Greeter interface.
+// mockGreeter ia a mock implementation of the greeter interface.
 type mockGreeter struct {
 	DoSayHello func(name string) (string, error)
 }
@@ -82,7 +82,7 @@ func (m *mockGreeter) SayHello(name string) (string, error) {
 			expected: `
 package main
 
-// mockGreeter ia a mock implementation of the Greeter interface.
+// mockGreeter ia a mock implementation of the greeter interface.
 type mockGreeter struct {
 	DoSayHello   func(name string) (string, error)
 	DoSayGoodbye func(name string) (string, error)
@@ -121,7 +121,7 @@ func (m *mockGreeter) SayGoodbye(name string) (string, error) {
 			expected: `
 package main
 
-// mockGreeter ia a mock implementation of the Greeter interface.
+// mockGreeter ia a mock implementation of the greeter interface.
 type mockGreeter struct {
 	DoSayHello func(name string) string
 }
@@ -151,7 +151,7 @@ func (m *mockGreeter) SayHello(name string) string {
 			expected: `
 package main
 
-// mockGreeter ia a mock implementation of the Greeter interface.
+// mockGreeter ia a mock implementation of the greeter interface.
 type mockGreeter struct {
 	DoSayHello func(name string)
 }
@@ -184,7 +184,7 @@ func (m *mockGreeter) SayHello(name string) {
 			expected: `
 package main
 
-// mockGreeter ia a mock implementation of the Greeter interface.
+// mockGreeter ia a mock implementation of the greeter interface.
 type mockGreeter struct {
 	DoSayHello func(name string) (greeting string, err error)
 }
@@ -218,7 +218,7 @@ func (m *mockGreeter) SayHello(name string) (greeting string, err error) {
 			expected: `
 package main
 
-// mockGreeter ia a mock implementation of the Greeter interface.
+// mockGreeter ia a mock implementation of the greeter interface.
 type mockGreeter struct {
 	DoSayHello func(first string, last string) (string, error)
 }
@@ -249,7 +249,7 @@ func (m *mockGreeter) SayHello(first string, last string) (string, error) {
 			expected: `
 package main
 
-// mockGreeter ia a mock implementation of the Greeter interface.
+// mockGreeter ia a mock implementation of the greeter interface.
 type mockGreeter struct {
 	DoSayHello func() (string, error)
 }
@@ -279,7 +279,7 @@ func (m *mockGreeter) SayHello() (string, error) {
 			expected: `
 package main
 
-// mockGreeter ia a mock implementation of the Greeter interface.
+// mockGreeter ia a mock implementation of the greeter interface.
 type mockGreeter struct {
 	DoSayHello func(name string)
 }
@@ -319,7 +319,7 @@ import (
 	"io"
 )
 
-// mockGreeter ia a mock implementation of the Greeter interface.
+// mockGreeter ia a mock implementation of the greeter interface.
 type mockGreeter struct {
 	DoSayHello func(in io.Reader, out io.Writer) error
 }

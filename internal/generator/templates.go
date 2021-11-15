@@ -7,7 +7,7 @@ package {{ .Package }}
 
 {{ template "imports" . }}
 
-// mock{{ .Name | title }} ia a mock implementation of the Greeter interface.
+// mock{{ .Name | title }} ia a mock implementation of the {{ .Name }} interface.
 type mock{{ .Name | title }} struct {
 {{- range  .Methods }}
     Do{{ .Name }} func ({{ template "declare-params" . }}) {{ template "results" . }}
