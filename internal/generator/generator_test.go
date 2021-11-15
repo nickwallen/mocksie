@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"go/parser"
 	"go/token"
+	"strings"
 	"testing"
 
 	"github.com/nickwallen/mocksie/internal"
@@ -38,19 +39,16 @@ func Test_Generator_GenerateMock_OK(t *testing.T) {
 			expected: `
 package testdata
 
-
-
 // mockGreeter ia a mock implementation of the Greeter interface.
 type mockGreeter struct {
-    DoSayHello func (name string) (string, error)
+	DoSayHello func(name string) (string, error)
 }
 
-// SayHello relies on DoSayHello for defining it's behavior. If this is causing a panic,
+// SayHello relies on DoSayHello for defining its behavior. If this is causing a panic,
 // define DoSayHello within your test case.
 func (m *mockGreeter) SayHello(name string) (string, error) {
-    return m.DoSayHello(name)
+	return m.DoSayHello(name)
 }
-
 `,
 		},
 		{
@@ -84,26 +82,23 @@ func (m *mockGreeter) SayHello(name string) (string, error) {
 			expected: `
 package main
 
-
-
 // mockGreeter ia a mock implementation of the Greeter interface.
 type mockGreeter struct {
-    DoSayHello func (name string) (string, error)
-    DoSayGoodbye func (name string) (string, error)
+	DoSayHello   func(name string) (string, error)
+	DoSayGoodbye func(name string) (string, error)
 }
 
-// SayHello relies on DoSayHello for defining it's behavior. If this is causing a panic,
+// SayHello relies on DoSayHello for defining its behavior. If this is causing a panic,
 // define DoSayHello within your test case.
 func (m *mockGreeter) SayHello(name string) (string, error) {
-    return m.DoSayHello(name)
+	return m.DoSayHello(name)
 }
 
-// SayGoodbye relies on DoSayGoodbye for defining it's behavior. If this is causing a panic,
+// SayGoodbye relies on DoSayGoodbye for defining its behavior. If this is causing a panic,
 // define DoSayGoodbye within your test case.
 func (m *mockGreeter) SayGoodbye(name string) (string, error) {
-    return m.DoSayGoodbye(name)
+	return m.DoSayGoodbye(name)
 }
-
 `,
 		},
 		{
@@ -126,19 +121,16 @@ func (m *mockGreeter) SayGoodbye(name string) (string, error) {
 			expected: `
 package main
 
-
-
 // mockGreeter ia a mock implementation of the Greeter interface.
 type mockGreeter struct {
-    DoSayHello func (name string) string
+	DoSayHello func(name string) string
 }
 
-// SayHello relies on DoSayHello for defining it's behavior. If this is causing a panic,
+// SayHello relies on DoSayHello for defining its behavior. If this is causing a panic,
 // define DoSayHello within your test case.
 func (m *mockGreeter) SayHello(name string) string {
-    return m.DoSayHello(name)
+	return m.DoSayHello(name)
 }
-
 `,
 		},
 		{
@@ -159,19 +151,16 @@ func (m *mockGreeter) SayHello(name string) string {
 			expected: `
 package main
 
-
-
 // mockGreeter ia a mock implementation of the Greeter interface.
 type mockGreeter struct {
-    DoSayHello func (name string) 
+	DoSayHello func(name string)
 }
 
-// SayHello relies on DoSayHello for defining it's behavior. If this is causing a panic,
+// SayHello relies on DoSayHello for defining its behavior. If this is causing a panic,
 // define DoSayHello within your test case.
-func (m *mockGreeter) SayHello(name string)  {
-    m.DoSayHello(name)
+func (m *mockGreeter) SayHello(name string) {
+	m.DoSayHello(name)
 }
-
 `,
 		},
 		{
@@ -195,19 +184,16 @@ func (m *mockGreeter) SayHello(name string)  {
 			expected: `
 package main
 
-
-
 // mockGreeter ia a mock implementation of the Greeter interface.
 type mockGreeter struct {
-    DoSayHello func (name string) (greeting string, err error)
+	DoSayHello func(name string) (greeting string, err error)
 }
 
-// SayHello relies on DoSayHello for defining it's behavior. If this is causing a panic,
+// SayHello relies on DoSayHello for defining its behavior. If this is causing a panic,
 // define DoSayHello within your test case.
 func (m *mockGreeter) SayHello(name string) (greeting string, err error) {
-    return m.DoSayHello(name)
+	return m.DoSayHello(name)
 }
-
 `,
 		},
 		{
@@ -232,19 +218,16 @@ func (m *mockGreeter) SayHello(name string) (greeting string, err error) {
 			expected: `
 package main
 
-
-
 // mockGreeter ia a mock implementation of the Greeter interface.
 type mockGreeter struct {
-    DoSayHello func (first string, last string) (string, error)
+	DoSayHello func(first string, last string) (string, error)
 }
 
-// SayHello relies on DoSayHello for defining it's behavior. If this is causing a panic,
+// SayHello relies on DoSayHello for defining its behavior. If this is causing a panic,
 // define DoSayHello within your test case.
 func (m *mockGreeter) SayHello(first string, last string) (string, error) {
-    return m.DoSayHello(first, last)
+	return m.DoSayHello(first, last)
 }
-
 `,
 		},
 		{
@@ -266,19 +249,16 @@ func (m *mockGreeter) SayHello(first string, last string) (string, error) {
 			expected: `
 package main
 
-
-
 // mockGreeter ia a mock implementation of the Greeter interface.
 type mockGreeter struct {
-    DoSayHello func () (string, error)
+	DoSayHello func() (string, error)
 }
 
-// SayHello relies on DoSayHello for defining it's behavior. If this is causing a panic,
+// SayHello relies on DoSayHello for defining its behavior. If this is causing a panic,
 // define DoSayHello within your test case.
 func (m *mockGreeter) SayHello() (string, error) {
-    return m.DoSayHello()
+	return m.DoSayHello()
 }
-
 `,
 		},
 		{
@@ -299,19 +279,16 @@ func (m *mockGreeter) SayHello() (string, error) {
 			expected: `
 package main
 
-
-
 // mockGreeter ia a mock implementation of the Greeter interface.
 type mockGreeter struct {
-    DoSayHello func (name string) 
+	DoSayHello func(name string)
 }
 
-// SayHello relies on DoSayHello for defining it's behavior. If this is causing a panic,
+// SayHello relies on DoSayHello for defining its behavior. If this is causing a panic,
 // define DoSayHello within your test case.
-func (m *mockGreeter) SayHello(name string)  {
-    m.DoSayHello(name)
+func (m *mockGreeter) SayHello(name string) {
+	m.DoSayHello(name)
 }
-
 `,
 		},
 		{
@@ -339,34 +316,37 @@ func (m *mockGreeter) SayHello(name string)  {
 package testdata
 
 import (
-    "io"
+	"io"
 )
 
 // mockGreeter ia a mock implementation of the Greeter interface.
 type mockGreeter struct {
-    DoSayHello func (in io.Reader, out io.Writer) error
+	DoSayHello func(in io.Reader, out io.Writer) error
 }
 
-// SayHello relies on DoSayHello for defining it's behavior. If this is causing a panic,
+// SayHello relies on DoSayHello for defining its behavior. If this is causing a panic,
 // define DoSayHello within your test case.
 func (m *mockGreeter) SayHello(in io.Reader, out io.Writer) error {
-    return m.DoSayHello(in, out)
+	return m.DoSayHello(in, out)
 }
-
 `,
 		},
 	}
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
+			var out bytes.Buffer
+
 			// Create a generator
-			out := bytes.NewBufferString("")
-			gen, err := New(out)
+			gen, err := New(&out)
 			require.NoError(t, err)
 
 			// Generate the mock
 			err = gen.GenerateMock(test.iface)
 			require.NoError(t, err)
-			require.Equal(t, test.expected, out.String())
+
+			// Trim leading newline to account for the multiline string
+			expected := strings.TrimPrefix(test.expected, "\n")
+			require.Equal(t, expected, out.String())
 
 			// Validate the generated code
 			_, err = parser.ParseFile(token.NewFileSet(), "", out.String(), parser.AllErrors)

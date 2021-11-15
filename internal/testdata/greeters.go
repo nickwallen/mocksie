@@ -8,15 +8,14 @@ import (
 	"os"
 )
 
-type greeter interface {
+type helloGreeter interface {
 	SayHello(in io.Reader, out io.Writer) error
-	SayGoodbye(in io.Reader, out io.Writer) error
 }
 
-type warmGreeter struct {
+type warmHelloGreeter struct {
 }
 
-func (w warmGreeter) SayHello(in io.Reader, out io.Writer) error {
+func (w warmHelloGreeter) SayHello(in io.Reader, out io.Writer) error {
 	name, err := bufio.NewReader(in).ReadString('\n')
 	if err != nil {
 		return err
@@ -25,7 +24,14 @@ func (w warmGreeter) SayHello(in io.Reader, out io.Writer) error {
 	return err
 }
 
-func (w warmGreeter) SayGoodbye(in io.Reader, out io.Writer) error {
+type goodbyeGreeter interface {
+	SayGoodbye(in io.Reader, out io.Writer) error
+}
+
+type warmGoodbyeGreeter struct {
+}
+
+func (w warmGoodbyeGreeter) SayGoodbye(in io.Reader, out io.Writer) error {
 	name, err := bufio.NewReader(in).ReadString('\n')
 	if err != nil {
 		return err
@@ -35,17 +41,18 @@ func (w warmGreeter) SayGoodbye(in io.Reader, out io.Writer) error {
 }
 
 func main() {
-	var greeter greeter
-
 	// Say hello
-	greeter = &warmGreeter{}
-	err := greeter.SayHello(os.Stdin, os.Stdout)
+	var hello helloGreeter
+	hello = &warmHelloGreeter{}
+	err := hello.SayHello(os.Stdin, os.Stdout)
 	if err != nil {
 		log.Fatalf("failed to say hello: %v", err)
 	}
 
 	// Say goodbye
-	err = greeter.SayGoodbye(os.Stdin, os.Stdin)
+	var goodbye goodbyeGreeter
+	goodbye = &warmGoodbyeGreeter{}
+	err = goodbye.SayGoodbye(os.Stdin, os.Stdin)
 	if err != nil {
 		log.Fatalf("failed to say goodbye: %v", err)
 	}

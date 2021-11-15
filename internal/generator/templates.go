@@ -29,7 +29,7 @@ import (
 	// methodsTemplate defines how the methods of the mock implementation are generated.
 	methodsTemplate = `
 {{- range .Methods }}
-// {{ .Name }} relies on Do{{ .Name }} for defining it's behavior. If this is causing a panic,
+// {{ .Name }} relies on Do{{ .Name }} for defining its behavior. If this is causing a panic,
 // define Do{{ .Name }} within your test case.
 func (m *mock{{ $.Name | title }}) {{ .Name }}({{ template "declare-params" . }}) {{ template "results" . }} {
     {{ if gt (len .Results) 0 }}return {{ end }}m.Do{{ .Name }}({{ template "use-params" . }})

@@ -39,11 +39,11 @@ prevents you from having to maintain boilerplate code, and
 			}
 
 			// Find all interfaces
-			parser, err := parser.New(generateArgs.inFile)
+			p, err := parser.New(generateArgs.inFile)
 			if err != nil {
 				return err
 			}
-			ifaces, err := parser.FindInterfaces()
+			ifaces, err := p.FindInterfaces()
 			if err != nil {
 				return err
 			}

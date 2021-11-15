@@ -1,11 +1,13 @@
 package generator
 
 import (
+	"bytes"
 	"html/template"
 	"io"
 
 	"github.com/Masterminds/sprig"
 	"github.com/nickwallen/mocksie/internal"
+	"golang.org/x/tools/imports"
 )
 
 // Generator generates the mock implementation of an Interface.
@@ -24,7 +26,23 @@ func New(writer io.Writer) (*Generator, error) {
 
 // GenerateMock generates a mock for an Interface.
 func (g *Generator) GenerateMock(iface *mocksie.Interface) error {
-	return g.tmpl.ExecuteTemplate(g.writer, "base", iface)
+	var out bytes.Buffer
+
+	// Generate the mocks
+	err := g.tmpl.ExecuteTemplate(&out, "base", iface)
+	if err != nil {
+		return err
+	}
+
+	// Format the generated source code including the imports
+	formatted, err := imports.Process("", out.Bytes(), nil)
+	if err != nil {
+		return err
+	}
+
+	// Write the mocks
+	_, err = g.writer.Write(formatted)
+	return err
 }
 
 // initTemplates initialize the templates that are used to generate the mocks.
