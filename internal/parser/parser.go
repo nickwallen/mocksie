@@ -2,10 +2,10 @@ package parser
 
 import (
 	"errors"
+	"fmt"
 	"go/ast"
 	"go/parser"
 	"go/token"
-	"log"
 	"os"
 	"path/filepath"
 	"strings"
@@ -48,38 +48,59 @@ func (p *Parser) FindInterface(name string) (*mocksie.Interface, error) {
 
 	// Find any interfaces
 	for _, decl := range f.Decls {
-		if _, ok := decl.(*ast.GenDecl); !ok {
-			continue // Not a declaration
+		// Expect a declaration
+		genDecl, ok := decl.(*ast.GenDecl)
+		if !ok {
+			continue
 		}
-		if decl.(*ast.GenDecl).Tok != token.TYPE {
-			continue // Not declaring a type
+
+		// Expect that a type is being declared
+		if genDecl.Tok != token.TYPE {
+			continue
 		}
-		for _, spec := range decl.(*ast.GenDecl).Specs {
-			if _, ok := spec.(*ast.TypeSpec); !ok {
-				continue // Not a proper type
+
+		for _, spec := range genDecl.Specs {
+			// Expect a proper type
+			typeSpec, ok := spec.(*ast.TypeSpec)
+			if !ok {
+				continue
 			}
-			if _, ok := spec.(*ast.TypeSpec).Type.(*ast.InterfaceType); !ok {
-				continue // Not an interface
+
+			// Expect an interface
+			ifaceType, ok := typeSpec.Type.(*ast.InterfaceType)
+			if !ok {
+				continue
 			}
-			typ := spec.(*ast.TypeSpec)
-			if name == typ.Name.String() {
-				// Found the interface
-				return &mocksie.Interface{
-					Name:    typ.Name.String(),
-					Package: buildPackage(f),
-					Imports: buildImports(f),
-					Methods: buildMethods(typ.Type.(*ast.InterfaceType)),
-				}, nil
+
+			// Is this the interface that we are looking for?
+			if name == typeSpec.Name.String() {
+				return buildInterface(typeSpec.Name.String(), ifaceType, f)
 			}
 		}
 	}
 	return nil, errNotFound
 }
 
+// buildInterface Returns an interface.
+func buildInterface(name string, typ *ast.InterfaceType, f *ast.File) (*mocksie.Interface, error) {
+	methods, err := buildMethods(typ)
+	if err != nil {
+		return nil, err
+	}
+	return &mocksie.Interface{
+		Name:    name,
+		Package: buildPackage(f),
+		Imports: buildImports(f),
+		Methods: methods,
+	}, nil
+}
+
+// buildPackage Returns the package defined within a file.
 func buildPackage(f *ast.File) mocksie.Package {
 	return mocksie.Package(f.Name.Name)
 }
 
+// buildImports Returns the imports defined within a file.
 func buildImports(f *ast.File) []mocksie.Import {
 	imports := make([]mocksie.Import, 0)
 	for _, impSpec := range f.Imports {
@@ -90,30 +111,37 @@ func buildImports(f *ast.File) []mocksie.Import {
 	return imports
 }
 
-func buildMethods(typ *ast.InterfaceType) []mocksie.Method {
+// buildMethods Returns the methods of an interface.
+func buildMethods(typ *ast.InterfaceType) ([]mocksie.Method, error) {
 	methods := make([]mocksie.Method, 0)
 	for _, field := range typ.Methods.List {
-		// Expect a function type
-		if _, ok := field.Type.(*ast.FuncType); !ok {
-			continue
-		}
-
 		// Expect the method to be named
 		if len(field.Names) == 0 {
 			continue
 		}
 
+		// Expect a function type
+		funcType, ok := field.Type.(*ast.FuncType)
+		if !ok {
+			continue
+		}
+
+		params, err := buildParams(funcType)
+		if err != nil {
+			return nil, err
+		}
+
 		// Build the method
-		funcType := field.Type.(*ast.FuncType)
 		methods = append(methods, mocksie.Method{
 			Name:    field.Names[0].Name,
-			Params:  buildParams(funcType),
+			Params:  params,
 			Results: buildResults(funcType),
 		})
 	}
-	return methods
+	return methods, nil
 }
 
+// buildResults Returns the results (return values) of an interface method.
 func buildResults(funcType *ast.FuncType) []mocksie.Result {
 	results := make([]mocksie.Result, 0)
 	if funcType.Results == nil {
@@ -123,7 +151,8 @@ func buildResults(funcType *ast.FuncType) []mocksie.Result {
 		field := funcType.Results.List[i]
 
 		// Expect the field to be an identifier
-		if _, ok := field.Type.(*ast.Ident); !ok {
+		typ, ok := field.Type.(*ast.Ident)
+		if !ok {
 			continue
 		}
 
@@ -136,13 +165,14 @@ func buildResults(funcType *ast.FuncType) []mocksie.Result {
 		// Build the result
 		results = append(results, mocksie.Result{
 			Name: name,
-			Type: field.Type.(*ast.Ident).Name,
+			Type: typ.Name,
 		})
 	}
 	return results
 }
 
-func buildParams(funcType *ast.FuncType) []mocksie.Param {
+// buildParams Returns the parameters of an interface method.
+func buildParams(funcType *ast.FuncType) ([]mocksie.Param, error) {
 	params := make([]mocksie.Param, 0)
 	for _, field := range funcType.Params.List {
 		// The param may not be named
@@ -160,15 +190,15 @@ func buildParams(funcType *ast.FuncType) []mocksie.Param {
 			})
 
 		case *ast.SelectorExpr:
-			i, ok := typ.X.(*ast.Ident)
+			ident, ok := typ.X.(*ast.Ident)
 			if !ok {
-				// TODO fix me
-				log.Fatalf("expected *ast.Ident, but got something else.")
+				return nil, fmt.Errorf("expected *ast.Ident, but got something else")
 			}
+
 			// Build the param
 			params = append(params, mocksie.Param{
 				Name: name,
-				Type: i.Name + "." + typ.Sel.Name,
+				Type: ident.Name + "." + typ.Sel.Name,
 			})
 
 		default:
@@ -176,5 +206,5 @@ func buildParams(funcType *ast.FuncType) []mocksie.Param {
 			continue
 		}
 	}
-	return params
+	return params, nil
 }
